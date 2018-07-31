@@ -1,4 +1,4 @@
-package ru.yandex.moykoshelek.common.expandablelayout;
+package ru.yandex.moykoshelek.common.ui.expandablelayout;
 
 public class ExpandState {
     static final int PRE_INIT = -1;

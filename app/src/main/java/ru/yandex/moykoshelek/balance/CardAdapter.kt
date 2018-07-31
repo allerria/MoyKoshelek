@@ -1,4 +1,4 @@
-package ru.yandex.moykoshelek.common
+package ru.yandex.moykoshelek.balance
 
 import android.support.v7.widget.CardView
 

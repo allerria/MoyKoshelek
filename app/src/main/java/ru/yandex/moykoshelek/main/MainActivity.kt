@@ -32,7 +32,7 @@ import ru.yandex.moykoshelek.balance.BalanceFragment
 import ru.yandex.moykoshelek.menu.MenuFragment
 import ru.yandex.moykoshelek.common.CurrencyPref
 import ru.yandex.moykoshelek.common.extensions.hideKeyboard
-import ru.yandex.moykoshelek.common.BaseActivity
+import ru.yandex.moykoshelek.common.ui.BaseActivity
 import ru.yandex.moykoshelek.common.DbWorkerThread
 import ru.yandex.moykoshelek.common.Screens
 

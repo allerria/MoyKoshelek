@@ -9,7 +9,7 @@ import android.widget.*
 import ru.yandex.moykoshelek.main.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.models.database.entities.WalletData
-import ru.yandex.moykoshelek.common.BaseFragment
+import ru.yandex.moykoshelek.common.ui.BaseFragment
 import ru.yandex.moykoshelek.common.Screens
 import ru.yandex.moykoshelek.common.WalletTypes
 

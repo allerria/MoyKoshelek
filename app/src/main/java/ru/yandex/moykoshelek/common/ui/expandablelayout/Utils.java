@@ -1,4 +1,4 @@
-package ru.yandex.moykoshelek.common.expandablelayout;
+package ru.yandex.moykoshelek.common.ui.expandablelayout;
 
 import android.animation.ValueAnimator;
 import android.support.v7.widget.RecyclerView;

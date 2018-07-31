@@ -1,4 +1,4 @@
-package ru.yandex.moykoshelek.common.expandablelayout;
+package ru.yandex.moykoshelek.common.ui.expandablelayout;
 
 public class Settings {
     static final int EXPAND_DURATION = 300;

@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import kotlinx.android.synthetic.main.fragment_menu.*
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.common.BaseFragment
+import ru.yandex.moykoshelek.common.ui.BaseFragment
 import ru.yandex.moykoshelek.common.Screens
 
 class MenuFragment : BaseFragment() {

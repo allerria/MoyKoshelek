@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.common.CardAdapter
 import ru.yandex.moykoshelek.models.database.entities.WalletData
 import ru.yandex.moykoshelek.common.CurrencyTypes
 

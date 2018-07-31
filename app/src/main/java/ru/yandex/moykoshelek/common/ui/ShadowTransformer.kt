@@ -1,7 +1,8 @@
-package ru.yandex.moykoshelek.common
+package ru.yandex.moykoshelek.common.ui
 
 import android.support.v4.view.ViewPager
 import android.view.View
+import ru.yandex.moykoshelek.balance.CardAdapter
 
 
 class ShadowTransformer(private val viewPager: ViewPager, private val adapter: CardAdapter) : ViewPager.OnPageChangeListener, ViewPager.PageTransformer {

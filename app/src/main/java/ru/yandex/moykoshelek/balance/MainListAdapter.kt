@@ -10,7 +10,7 @@ import android.widget.TextView
 import org.jetbrains.anko.textColorResource
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.models.database.entities.TransactionData
-import ru.yandex.moykoshelek.common.expandablelayout.ExpandableLayout
+import ru.yandex.moykoshelek.common.ui.expandablelayout.ExpandableLayout
 import ru.yandex.moykoshelek.common.CurrencyTypes
 import ru.yandex.moykoshelek.common.TransactionTypes
 

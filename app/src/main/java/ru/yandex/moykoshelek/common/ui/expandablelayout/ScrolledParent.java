@@ -1,4 +1,4 @@
-package ru.yandex.moykoshelek.common.expandablelayout;
+package ru.yandex.moykoshelek.common.ui.expandablelayout;
 
 import android.view.ViewGroup;
 
