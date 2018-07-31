@@ -13,6 +13,7 @@ import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
 import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
 import ru.yandex.moykoshelek.data.datasource.CurrencyPref
+import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
 

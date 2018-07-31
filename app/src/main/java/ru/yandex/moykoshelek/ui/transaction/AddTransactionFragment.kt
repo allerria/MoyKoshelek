@@ -8,13 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.ui.main.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.ui.balance.CardsPagerAdapter
 import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
 import ru.yandex.moykoshelek.data.datasource.CurrencyPref
+import ru.yandex.moykoshelek.data.entities.CurrencyTypes
+import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
+import javax.inject.Inject
 
 
 class AddTransactionFragment : BaseFragment() {
@@ -26,6 +30,9 @@ class AddTransactionFragment : BaseFragment() {
     private lateinit var viewPager: ViewPager
     private lateinit var tabLayout: TabLayout
     private lateinit var cardAdapter: CardsPagerAdapter
+
+    @Inject
+    lateinit var router: Router
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_add_transaction, container, false)
@@ -78,7 +85,7 @@ class AddTransactionFragment : BaseFragment() {
             wallet.balance -= balanceChange
         val task = Runnable { (activity as MainActivity).appDb?.walletDataDao()?.update(wallet) }
         (activity as MainActivity).dbWorkerThread.postTask(task)
-        (activity as MainActivity).showFragment(Screens.BALANCE_SCREEN, false)
+        router.backTo(Screens.BALANCE_SCREEN)
     }
 
     private fun insertTransactionDataInDb(data: TransactionData) {

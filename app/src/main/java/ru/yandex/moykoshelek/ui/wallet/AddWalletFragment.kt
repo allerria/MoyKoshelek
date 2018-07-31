@@ -6,11 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.ui.main.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
+import ru.yandex.moykoshelek.data.entities.WalletTypes
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
+import javax.inject.Inject
 
 class AddWalletFragment : BaseFragment() {
 
@@ -18,6 +21,9 @@ class AddWalletFragment : BaseFragment() {
     override val TAG = Screens.ADD_WALLET_SCREEN
 
     lateinit var layout:ConstraintLayout
+
+    @Inject
+    lateinit var router: Router
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_add_wallet, container, false)
@@ -62,7 +68,7 @@ class AddWalletFragment : BaseFragment() {
             else -> ""
         }
         insertWalletDataInDb(wallet)
-        (activity as MainActivity).showFragment(Screens.BALANCE_SCREEN, false)
+        router.backTo(Screens.BALANCE_SCREEN)
     }
 
     private fun insertWalletDataInDb(data: WalletData) {

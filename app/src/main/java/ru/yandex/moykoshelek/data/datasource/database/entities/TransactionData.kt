@@ -1,6 +1,8 @@
 package ru.yandex.moykoshelek.data.datasource.database.entities
 
 import android.arch.persistence.room.*
+import ru.yandex.moykoshelek.data.entities.CurrencyTypes
+import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.extensions.getCurrentDateTime
 import ru.yandex.moykoshelek.extensions.toString
 

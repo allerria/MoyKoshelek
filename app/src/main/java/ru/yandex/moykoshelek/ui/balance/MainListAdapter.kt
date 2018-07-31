@@ -10,6 +10,8 @@ import android.widget.TextView
 import org.jetbrains.anko.textColorResource
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
+import ru.yandex.moykoshelek.data.entities.CurrencyTypes
+import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.ui.common.expandablelayout.ExpandableLayout
 
 class MainListAdapter(var transactionList: List<TransactionData>, private val context: Context?) : RecyclerView.Adapter<MainListAdapter.ViewHolder>() {

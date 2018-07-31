@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
+import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 
 
 class CardsPagerAdapter : PagerAdapter(), CardAdapter {
