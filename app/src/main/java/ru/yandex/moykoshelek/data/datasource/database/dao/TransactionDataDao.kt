@@ -1,5 +1,6 @@
 package ru.yandex.moykoshelek.data.datasource.database.dao
 
+import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
@@ -9,11 +10,11 @@ import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
 interface TransactionDataDao {
 
     @Query("SELECT * from transactions")
-    fun getAll(): List<TransactionData>
+    fun getAll(): LiveData<List<TransactionData>>
 
     @Query("SELECT DISTINCT category FROM transactions")
-    fun getCategories(): List<String>
+    fun getCategories(): LiveData<List<String>>
 
     @Insert()
-    fun insert(weatherData: TransactionData)
+    fun insert(transactionData: TransactionData)
 }

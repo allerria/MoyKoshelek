@@ -21,6 +21,7 @@ class MoyKoshelekApp : DaggerApplication() {
         super.onCreate()
         AndroidNetworking.initialize(applicationContext)
         InternetAvailabilityChecker.init(this)
+
         instance = this
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())

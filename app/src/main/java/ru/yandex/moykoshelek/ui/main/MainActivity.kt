@@ -16,22 +16,18 @@ import com.treebo.internetavailabilitychecker.InternetConnectivityListener
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
-import org.jetbrains.anko.appcompat.v7.navigationIconResource
 import org.jetbrains.anko.coroutines.experimental.bg
 import org.jetbrains.anko.selector
 import org.json.JSONObject
 import ru.terrakok.cicerone.Router
 import ru.terrakok.cicerone.android.SupportAppNavigator
-import ru.terrakok.cicerone.commands.BackTo
-import ru.terrakok.cicerone.commands.Command
-import ru.terrakok.cicerone.commands.Forward
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.data.datasource.database.AppDatabase
 import ru.yandex.moykoshelek.ui.transaction.AddTransactionFragment
 import ru.yandex.moykoshelek.ui.wallet.AddWalletFragment
 import ru.yandex.moykoshelek.ui.balance.BalanceFragment
 import ru.yandex.moykoshelek.ui.menu.MenuFragment
 import ru.yandex.moykoshelek.data.datasource.CurrencyPref
+import ru.yandex.moykoshelek.interactors.WalletInteractor
 import ru.yandex.moykoshelek.ui.common.BaseActivity
 import ru.yandex.moykoshelek.utils.DbWorkerThread
 import ru.yandex.moykoshelek.ui.Screens
@@ -43,14 +39,15 @@ import javax.inject.Inject
 class MainActivity : BaseActivity(), InternetConnectivityListener {
 
     override val layoutRes = R.layout.activity_main
-    private var isMenuShowed = false
-    var appDb: AppDatabase? = null
     lateinit var dbWorkerThread: DbWorkerThread
     val uiHandler = Handler()
     private lateinit var internetAvailabilityChecker: InternetAvailabilityChecker
 
     @Inject
     lateinit var router: Router
+
+    @Inject
+    lateinit var walletInteractor: WalletInteractor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +61,6 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
         setSupportActionBar(toolbar)
         initToolbarIcon()
         supportFragmentManager.addOnBackStackChangedListener { initToolbarIcon() }
-        appDb = AppDatabase.getInstance(this)
         onInternetConnectivityChanged(true)
     }
 
@@ -84,7 +80,7 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
                 .getAsJSONObject(object : JSONObjectRequestListener {
                     override fun onResponse(response: JSONObject) {
                         val currency: Float = response.getJSONObject("USD_RUB").getDouble("val").toFloat()
-                        CurrencyPref(this@MainActivity).setCurrentConvert(currency)
+                        walletInteractor.setCurrencyRate(currency)
                     }
 
                     override fun onError(error: ANError) {
@@ -98,14 +94,6 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
         internetAvailabilityChecker.removeInternetConnectivityChangeListener(this)
         super.onStop()
     }
-
-//    override fun onBackPressed() {
-//        if (isMenuShowed) {
-//            showOrHideMenu()
-//        } else {
-//            super.onBackPressed()
-//        }
-//    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)

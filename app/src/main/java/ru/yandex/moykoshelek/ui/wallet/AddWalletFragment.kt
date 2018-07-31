@@ -9,8 +9,10 @@ import android.widget.*
 import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.ui.main.MainActivity
 import ru.yandex.moykoshelek.R
+import ru.yandex.moykoshelek.data.datasource.database.AppDatabase
 import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
 import ru.yandex.moykoshelek.data.entities.WalletTypes
+import ru.yandex.moykoshelek.interactors.WalletInteractor
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
 import javax.inject.Inject
@@ -24,6 +26,9 @@ class AddWalletFragment : BaseFragment() {
 
     @Inject
     lateinit var router: Router
+
+    @Inject
+    lateinit var walletInteractor: WalletInteractor
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_add_wallet, container, false)
@@ -72,7 +77,7 @@ class AddWalletFragment : BaseFragment() {
     }
 
     private fun insertWalletDataInDb(data: WalletData) {
-        val task = Runnable { (activity as MainActivity).appDb?.walletDataDao()?.insert(data) }
+        val task = Runnable { walletInteractor.addWallet(data) }
         (activity as MainActivity).dbWorkerThread.postTask(task)
     }
 

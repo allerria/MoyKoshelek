@@ -14,8 +14,10 @@ import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.ui.balance.CardsPagerAdapter
 import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
 import ru.yandex.moykoshelek.data.datasource.CurrencyPref
+import ru.yandex.moykoshelek.data.datasource.database.AppDatabase
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
+import ru.yandex.moykoshelek.interactors.WalletInteractor
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
 import javax.inject.Inject
@@ -34,6 +36,9 @@ class AddTransactionFragment : BaseFragment() {
     @Inject
     lateinit var router: Router
 
+    @Inject
+    lateinit var walletInteractor: WalletInteractor
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_add_transaction, container, false)
     }
@@ -50,11 +55,13 @@ class AddTransactionFragment : BaseFragment() {
 
     private fun fetchUniqueCategories(view: View) {
         val task = Runnable {
-            val data = (activity as MainActivity).appDb?.transactionDataDao()?.getCategories()
-            (activity as MainActivity).uiHandler.post {
-                val adapter = ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, data)
-                val textView = view.findViewById(R.id.transaction_category) as AutoCompleteTextView
-                textView.setAdapter<ArrayAdapter<String>>(adapter)
+            val test = walletInteractor.getCategories()
+            test.observeForever {
+                (activity as MainActivity).uiHandler.post {
+                    val adapter = ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, it!!)
+                    val textView = view.findViewById(R.id.transaction_category) as AutoCompleteTextView
+                    textView.setAdapter<ArrayAdapter<String>>(adapter)
+                }
             }
         }
         (activity as MainActivity).dbWorkerThread.postTask(task)
@@ -76,20 +83,20 @@ class AddTransactionFragment : BaseFragment() {
         transaction.category = view.findViewById<AutoCompleteTextView>(R.id.transaction_category).text.toString()
         insertTransactionDataInDb(transaction)
         var balanceChange = transaction.cost
-        val curr = CurrencyPref(this.context!!).getCurrentConvert()
+        val curr = walletInteractor.getCurrencyRate().value!!
         if (wallet.currency != transaction.currency)
             balanceChange = if(transaction.currency == CurrencyTypes.USD) transaction.cost * curr else transaction.cost / curr
         if (transaction.typeTransaction == TransactionTypes.IN)
             wallet.balance += balanceChange
         else
             wallet.balance -= balanceChange
-        val task = Runnable { (activity as MainActivity).appDb?.walletDataDao()?.update(wallet) }
+        val task = Runnable { walletInteractor.updateWallet(wallet) }
         (activity as MainActivity).dbWorkerThread.postTask(task)
         router.backTo(Screens.BALANCE_SCREEN)
     }
 
     private fun insertTransactionDataInDb(data: TransactionData) {
-        val task = Runnable { (activity as MainActivity).appDb?.transactionDataDao()?.insert(data) }
+        val task = Runnable { walletInteractor.addTransaction(data) }
         (activity as MainActivity).dbWorkerThread.postTask(task)
     }
 
@@ -108,14 +115,17 @@ class AddTransactionFragment : BaseFragment() {
 
     private fun fetchwalletsDataFromDb() {
         val task = Runnable {
-            val data = (activity as MainActivity).appDb?.walletDataDao()?.getAll()
-            (activity as MainActivity).uiHandler.post {
-                if (data != null) {
-                    for (i in 0 until data.size)
-                        cardAdapter.addCardItem(data[i])
-                    cardAdapter.notifyDataSetChanged()
+            val test = walletInteractor.getWallets()
+            test.observeForever {
+                (activity as MainActivity).uiHandler.post {
+                    if (it != null) {
+                        for (i in 0 until it.size)
+                            cardAdapter.addCardItem(it[i])
+                        cardAdapter.notifyDataSetChanged()
+                    }
                 }
             }
+
         }
         (activity as MainActivity).dbWorkerThread.postTask(task)
     }

@@ -1,33 +1,34 @@
 package ru.yandex.moykoshelek.ui.balance
 
 import android.os.Bundle
-import android.support.design.widget.TabLayout
-import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import kotlinx.android.synthetic.main.fragment_balance.*
 import ru.yandex.moykoshelek.ui.main.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
 import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
 import ru.yandex.moykoshelek.data.datasource.CurrencyPref
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
+import ru.yandex.moykoshelek.data.repositories.TransactionsRepository
+import ru.yandex.moykoshelek.data.repositories.WalletRepository
+import ru.yandex.moykoshelek.interactors.WalletInteractor
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
+import javax.inject.Inject
 
 class BalanceFragment : BaseFragment() {
 
-    override val layoutRes = R.layout.fragment_main
+    override val layoutRes = R.layout.fragment_balance
     override val TAG = Screens.BALANCE_SCREEN
 
-    private lateinit var viewPager: ViewPager
-    private lateinit var tabLayout: TabLayout
     private lateinit var cardAdapter: CardsPagerAdapter
-
-    private lateinit var transactionRV: RecyclerView
     private lateinit var transactionAdapter: MainListAdapter
+
+    @Inject
+    lateinit var walletInteractor: WalletInteractor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +43,10 @@ class BalanceFragment : BaseFragment() {
 
     private fun fetchTransactionsFromDb(view: View) {
         val task = Runnable {
-            val data = (activity as MainActivity).appDb?.transactionDataDao()?.getAll()
-            (activity as MainActivity).uiHandler.post {
-                if (data != null) {
-                    setupRecyclerView(view, data)
+            val test = walletInteractor.getTransactions()
+            test.observeForever {
+                (activity as MainActivity).uiHandler.post {
+                    setupRecyclerView(view, it!!)
                 }
             }
         }
@@ -53,51 +54,50 @@ class BalanceFragment : BaseFragment() {
     }
 
     private fun setupRecyclerView(view: View, data: List<TransactionData>) {
-        transactionRV = view.findViewById(R.id.last_history_rv)
-        transactionRV.layoutManager = LinearLayoutManager(view.context, LinearLayout.VERTICAL, false)
+        transaction_rv.layoutManager = LinearLayoutManager(view.context, LinearLayout.VERTICAL, false)
         transactionAdapter = MainListAdapter(data, context)
-        transactionRV.adapter = transactionAdapter
-        transactionRV.isNestedScrollingEnabled = false
+        transaction_rv.adapter = transactionAdapter
+        transaction_rv.isNestedScrollingEnabled = false
     }
 
     private fun setupViewPager(view: View, data: List<WalletData>) {
-        viewPager = view.findViewById(R.id.cards_viewpager)
-        tabLayout = view.findViewById(R.id.tab_dots) as TabLayout
-        tabLayout.setupWithViewPager(viewPager, true)
+        tab_dots.setupWithViewPager(cards_viewpager, true)
         cardAdapter = CardsPagerAdapter()
-        for (i in 0 until data.size){
+        for (i in 0 until data.size) {
             cardAdapter.addCardItem(data[i])
         }
         cardAdapter.notifyDataSetChanged()
-        viewPager.adapter = cardAdapter
-        viewPager.offscreenPageLimit = 3
-        viewPager.clipToPadding = false
-        viewPager.setPadding(96, 0, 96, 0)
-        viewPager.pageMargin = 48
+        cards_viewpager.adapter = cardAdapter
+        cards_viewpager.offscreenPageLimit = 3
+        cards_viewpager.clipToPadding = false
+        cards_viewpager.setPadding(96, 0, 96, 0)
+        cards_viewpager.pageMargin = 48
 
         var sumOfDollar = 0.0
         var sumOfRuble = 0.0
-        val curr = CurrencyPref(this.context!!).getCurrentConvert()
-        for (i in 0 until data.size){
-            if (data[i].currency == CurrencyTypes.USD){
-                sumOfDollar += data[i].balance
-                sumOfRuble += data[i].balance * curr
+        val test = walletInteractor.getCurrencyRate()
+        test.observeForever {
+            val curr = walletInteractor.getCurrencyRate().value!!
+            for (i in 0 until data.size) {
+                if (data[i].currency == CurrencyTypes.USD) {
+                    sumOfDollar += data[i].balance
+                    sumOfRuble += data[i].balance * curr
+                } else {
+                    sumOfDollar += data[i].balance / curr
+                    sumOfRuble += data[i].balance
+                }
             }
-            else {
-                sumOfDollar += data[i].balance / curr
-                sumOfRuble += data[i].balance
-            }
+            view.findViewById<TextView>(R.id.sum_amount_rub_tv).text = String.format("\u20BD %.2f", sumOfRuble)
+            view.findViewById<TextView>(R.id.sum_amount_usd_tv).text = String.format("$ %.2f", sumOfDollar)
         }
-        view.findViewById<TextView>(R.id.sum_amount_rub_tv).text = String.format("\u20BD %.2f", sumOfRuble)
-        view.findViewById<TextView>(R.id.sum_amount_usd_tv).text = String.format("$ %.2f", sumOfDollar)
     }
 
     private fun fetchDataFromDb(view: View) {
         val task = Runnable {
-            val data = (activity as MainActivity).appDb?.walletDataDao()?.getAll()
-            (activity as MainActivity).uiHandler.post {
-                if (data != null) {
-                    setupViewPager(view, data)
+            val test = walletInteractor.getWallets()
+            test.observeForever {
+                (activity as MainActivity).uiHandler.post {
+                    setupViewPager(view, it!!)
                 }
             }
         }
