@@ -26,10 +26,8 @@ import ru.yandex.moykoshelek.ui.transaction.AddTransactionFragment
 import ru.yandex.moykoshelek.ui.wallet.AddWalletFragment
 import ru.yandex.moykoshelek.ui.balance.BalanceFragment
 import ru.yandex.moykoshelek.ui.menu.MenuFragment
-import ru.yandex.moykoshelek.data.datasource.CurrencyPref
 import ru.yandex.moykoshelek.interactors.WalletInteractor
 import ru.yandex.moykoshelek.ui.common.BaseActivity
-import ru.yandex.moykoshelek.utils.DbWorkerThread
 import ru.yandex.moykoshelek.ui.Screens
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import timber.log.Timber
@@ -39,7 +37,6 @@ import javax.inject.Inject
 class MainActivity : BaseActivity(), InternetConnectivityListener {
 
     override val layoutRes = R.layout.activity_main
-    lateinit var dbWorkerThread: DbWorkerThread
     val uiHandler = Handler()
     private lateinit var internetAvailabilityChecker: InternetAvailabilityChecker
 
@@ -54,8 +51,6 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
         if (savedInstanceState == null) {
             router.newRootScreen(Screens.BALANCE_SCREEN)
         }
-        dbWorkerThread = DbWorkerThread("dbWorkerThread")
-        dbWorkerThread.start()
         internetAvailabilityChecker = InternetAvailabilityChecker.getInstance()
         internetAvailabilityChecker.addInternetConnectivityListener(this)
         setSupportActionBar(toolbar)
@@ -66,7 +61,7 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
 
     override fun onInternetConnectivityChanged(isConnected: Boolean) {
         if (isConnected) {
-            launch(UI) {
+            launch {
                 bg {
                     getCurrencyFromInternet()
                 }
@@ -90,7 +85,6 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
     }
 
     override fun onStop() {
-        dbWorkerThread.interrupt()
         internetAvailabilityChecker.removeInternetConnectivityChangeListener(this)
         super.onStop()
     }
@@ -131,11 +125,9 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
     private fun showSelectAddDialog() {
         val array = arrayOf("Счет", "Доход/Расход")
         selector("Выберите что добавить", array.toList()) { _, i ->
-            run {
-                when (i) {
-                    0 -> router.navigateTo(Screens.ADD_WALLET_SCREEN)
-                    1 -> router.navigateTo(Screens.ADD_TRANSACTION_SCREEN)
-                }
+            when (i) {
+                0 -> router.navigateTo(Screens.ADD_WALLET_SCREEN)
+                1 -> router.navigateTo(Screens.ADD_TRANSACTION_SCREEN)
             }
         }
     }
@@ -143,7 +135,7 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
     private fun initToolbarIcon() {
         if (supportFragmentManager.fragments.isNotEmpty()) {
             Timber.d((supportFragmentManager.fragments.first() as BaseFragment).TAG)
-            when((supportFragmentManager.fragments.first() as BaseFragment).TAG) {
+            when ((supportFragmentManager.fragments.first() as BaseFragment).TAG) {
                 Screens.BALANCE_SCREEN -> toolbar.setNavigationIcon(R.drawable.ic_hamburger)
                 else -> toolbar.setNavigationIcon(R.drawable.ic_exit)
             }

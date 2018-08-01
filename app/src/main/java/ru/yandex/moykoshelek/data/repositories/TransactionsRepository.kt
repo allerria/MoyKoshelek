@@ -1,6 +1,8 @@
 package ru.yandex.moykoshelek.data.repositories
 
 import android.arch.lifecycle.LiveData
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import ru.yandex.moykoshelek.data.datasource.database.dao.TransactionDataDao
 import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
 import javax.inject.Inject
@@ -12,7 +14,11 @@ class TransactionsRepository @Inject constructor(private val transactionDataDao:
     fun getCategories(): LiveData<List<String>> = transactionDataDao.getCategories()
 
     fun addTransaction(transactionData: TransactionData) {
-        transactionDataDao.insert(transactionData)
+
+        launch {
+            transactionDataDao.insert(transactionData)
+        }
+
     }
 
 }

@@ -14,20 +14,16 @@ import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.ui.common.expandablelayout.ExpandableLayout
 
-class MainListAdapter(var transactionList: List<TransactionData>, private val context: Context?) : RecyclerView.Adapter<MainListAdapter.ViewHolder>() {
+class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<MainListAdapter.ViewHolder>() {
+
+    private val data: MutableList<TransactionData> = mutableListOf()
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        viewHolder.layout.setOnExpandListener {
-            if (it) {
-                viewHolder.expandIcon.setImageResource(R.drawable.ic_arrow_up)
-            } else {
-                viewHolder.expandIcon.setImageResource(R.drawable.ic_arrow_down)
-            }
-        }
-        viewHolder.transactionTag.text = transactionList[position].category
+
+        viewHolder.transactionTag.text = data[position].category
         //viewHolder.transactionCardName = transactionList[position].
-        var currency = (if (transactionList[position].currency == CurrencyTypes.USD) "$ " else "\u20BD ") + transactionList[position].cost
-        if (transactionList[position].typeTransaction == TransactionTypes.IN) {
+        var currency = (if (data[position].currency == CurrencyTypes.USD) "$ " else "\u20BD ") + data[position].cost
+        if (data[position].typeTransaction == TransactionTypes.IN) {
             currency = "+ $currency"
             viewHolder.transactionAmount.textColorResource = android.R.color.holo_green_light
         } else {
@@ -35,8 +31,8 @@ class MainListAdapter(var transactionList: List<TransactionData>, private val co
             viewHolder.transactionAmount.textColorResource = R.color.red
         }
         viewHolder.transactionAmount.text = currency
-        viewHolder.transactionPlaceholder.text = transactionList[position].placeholder
-        viewHolder.transactionTime.text = transactionList[position].time
+        viewHolder.transactionPlaceholder.text = data[position].placeholder
+        viewHolder.transactionTime.text = data[position].time
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
@@ -45,7 +41,7 @@ class MainListAdapter(var transactionList: List<TransactionData>, private val co
     }
 
     override fun getItemCount(): Int {
-        return transactionList.size
+        return data.size
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -57,6 +53,21 @@ class MainListAdapter(var transactionList: List<TransactionData>, private val co
         val transactionTime = itemView.findViewById<TextView>(R.id.transaction_time)!!
         val transactionPlaceholder = itemView.findViewById<TextView>(R.id.transaction_placeholder)!!
         val transactionHasBalance = itemView.findViewById<TextView>(R.id.transaction_has_balance)!!
+        init {
+            layout.setOnExpandListener {
+                if (it) {
+                    this.expandIcon.setImageResource(R.drawable.ic_arrow_up)
+                } else {
+                    this.expandIcon.setImageResource(R.drawable.ic_arrow_down)
+                }
+            }
+        }
+    }
+
+    fun setData(transactionList: List<TransactionData>) {
+        data.clear()
+        data.addAll(transactionList)
+        notifyDataSetChanged()
     }
 
 }

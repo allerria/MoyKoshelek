@@ -10,7 +10,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "ru.yandex.moykoshelek"
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -42,11 +42,12 @@ ext {
     timber = '4.6.1'
     archLivecycle = '1.1.1'
     cicerone = '3.0.0'
+    coroutine = '0.24.0'
 }
 
 kotlin {
     experimental {
-        coroutines "enable"
+        coroutines 'enable'
     }
 }
 
@@ -80,6 +81,8 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$timber"
 
     implementation "ru.terrakok.cicerone:cicerone:$cicerone"
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine"
 
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'junit:junit:4.12'

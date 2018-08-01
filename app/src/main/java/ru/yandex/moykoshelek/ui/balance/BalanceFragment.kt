@@ -39,23 +39,21 @@ class BalanceFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         fetchDataFromDb(view)
         fetchTransactionsFromDb(view)
+        setupRecyclerView(view)
     }
 
     private fun fetchTransactionsFromDb(view: View) {
-        val task = Runnable {
-            val test = walletInteractor.getTransactions()
-            test.observeForever {
-                (activity as MainActivity).uiHandler.post {
-                    setupRecyclerView(view, it!!)
-                }
+        val test = walletInteractor.getTransactions()
+        test.observeForever {
+            (activity as MainActivity).uiHandler.post {
+                transactionAdapter.setData(it!!)
             }
         }
-        (activity as MainActivity).dbWorkerThread.postTask(task)
     }
 
-    private fun setupRecyclerView(view: View, data: List<TransactionData>) {
+    private fun setupRecyclerView(view: View) {
         transaction_rv.layoutManager = LinearLayoutManager(view.context, LinearLayout.VERTICAL, false)
-        transactionAdapter = MainListAdapter(data, context)
+        transactionAdapter = MainListAdapter(context)
         transaction_rv.adapter = transactionAdapter
         transaction_rv.isNestedScrollingEnabled = false
     }
@@ -93,14 +91,13 @@ class BalanceFragment : BaseFragment() {
     }
 
     private fun fetchDataFromDb(view: View) {
-        val task = Runnable {
-            val test = walletInteractor.getWallets()
-            test.observeForever {
-                (activity as MainActivity).uiHandler.post {
-                    setupViewPager(view, it!!)
-                }
+
+        val test = walletInteractor.getWallets()
+        test.observeForever {
+            (activity as MainActivity).uiHandler.post {
+                setupViewPager(view, it!!)
             }
         }
-        (activity as MainActivity).dbWorkerThread.postTask(task)
+
     }
 }

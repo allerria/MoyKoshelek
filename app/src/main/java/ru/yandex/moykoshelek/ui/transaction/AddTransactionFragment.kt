@@ -1,5 +1,6 @@
 package ru.yandex.moykoshelek.ui.transaction
 
+import android.app.Application
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.design.widget.TabLayout
@@ -9,12 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import ru.terrakok.cicerone.Router
-import ru.yandex.moykoshelek.ui.main.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.ui.balance.CardsPagerAdapter
 import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
-import ru.yandex.moykoshelek.data.datasource.CurrencyPref
-import ru.yandex.moykoshelek.data.datasource.database.AppDatabase
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.interactors.WalletInteractor
@@ -39,6 +37,9 @@ class AddTransactionFragment : BaseFragment() {
     @Inject
     lateinit var walletInteractor: WalletInteractor
 
+    @Inject
+    lateinit var app: Application
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_add_transaction, container, false)
     }
@@ -54,17 +55,12 @@ class AddTransactionFragment : BaseFragment() {
     }
 
     private fun fetchUniqueCategories(view: View) {
-        val task = Runnable {
-            val test = walletInteractor.getCategories()
-            test.observeForever {
-                (activity as MainActivity).uiHandler.post {
-                    val adapter = ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, it!!)
-                    val textView = view.findViewById(R.id.transaction_category) as AutoCompleteTextView
-                    textView.setAdapter<ArrayAdapter<String>>(adapter)
-                }
-            }
+        val test = walletInteractor.getCategories()
+        test.observeForever {
+            val adapter = ArrayAdapter<String>(app, android.R.layout.simple_dropdown_item_1line, it)
+            val textView = view.findViewById(R.id.transaction_category) as AutoCompleteTextView
+            textView.setAdapter<ArrayAdapter<String>>(adapter)
         }
-        (activity as MainActivity).dbWorkerThread.postTask(task)
     }
 
     private fun createTransaction(view: View) {
@@ -77,7 +73,7 @@ class AddTransactionFragment : BaseFragment() {
         transaction.cost = view.findViewById<EditText>(R.id.transaction_amount).text.toString().toDouble()
         transaction.currency = view.findViewById<Spinner>(R.id.transaction_currency_spinner).selectedItemPosition
         transaction.placeholder = "Moscow, Russia"
-        transaction.typeTransaction = if(view.findViewById<RadioButton>(R.id.in_radio).isChecked) TransactionTypes.IN else TransactionTypes.OUT
+        transaction.typeTransaction = if (view.findViewById<RadioButton>(R.id.in_radio).isChecked) TransactionTypes.IN else TransactionTypes.OUT
         val wallet = cardAdapter.getItem(view.findViewById<ViewPager>(R.id.cards_viewpager).currentItem)
         transaction.walletId = wallet.id?.toInt()
         transaction.category = view.findViewById<AutoCompleteTextView>(R.id.transaction_category).text.toString()
@@ -85,19 +81,17 @@ class AddTransactionFragment : BaseFragment() {
         var balanceChange = transaction.cost
         val curr = walletInteractor.getCurrencyRate().value!!
         if (wallet.currency != transaction.currency)
-            balanceChange = if(transaction.currency == CurrencyTypes.USD) transaction.cost * curr else transaction.cost / curr
+            balanceChange = if (transaction.currency == CurrencyTypes.USD) transaction.cost * curr else transaction.cost / curr
         if (transaction.typeTransaction == TransactionTypes.IN)
             wallet.balance += balanceChange
         else
             wallet.balance -= balanceChange
-        val task = Runnable { walletInteractor.updateWallet(wallet) }
-        (activity as MainActivity).dbWorkerThread.postTask(task)
+        walletInteractor.updateWallet(wallet)
         router.backTo(Screens.BALANCE_SCREEN)
     }
 
     private fun insertTransactionDataInDb(data: TransactionData) {
-        val task = Runnable { walletInteractor.addTransaction(data) }
-        (activity as MainActivity).dbWorkerThread.postTask(task)
+        walletInteractor.addTransaction(data)
     }
 
     private fun setupViewPager(view: View) {
@@ -114,19 +108,12 @@ class AddTransactionFragment : BaseFragment() {
     }
 
     private fun fetchwalletsDataFromDb() {
-        val task = Runnable {
-            val test = walletInteractor.getWallets()
-            test.observeForever {
-                (activity as MainActivity).uiHandler.post {
-                    if (it != null) {
-                        for (i in 0 until it.size)
-                            cardAdapter.addCardItem(it[i])
-                        cardAdapter.notifyDataSetChanged()
-                    }
-                }
-            }
+        val test = walletInteractor.getWallets()
+        test.observeForever {
+            for (i in 0 until it!!.size)
+                cardAdapter.addCardItem(it[i])
+            cardAdapter.notifyDataSetChanged()
 
         }
-        (activity as MainActivity).dbWorkerThread.postTask(task)
     }
 }
