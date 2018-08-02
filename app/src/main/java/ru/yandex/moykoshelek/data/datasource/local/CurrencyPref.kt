@@ -1,4 +1,4 @@
-package ru.yandex.moykoshelek.data.datasource
+package ru.yandex.moykoshelek.data.datasource.local
 
 import android.app.Application
 import android.arch.lifecycle.LiveData

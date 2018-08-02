@@ -1,4 +1,4 @@
-package ru.yandex.moykoshelek.data.datasource.database.entities
+package ru.yandex.moykoshelek.data.datasource.local.entities
 
 import android.arch.persistence.room.*
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes

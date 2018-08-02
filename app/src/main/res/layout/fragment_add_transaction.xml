@@ -67,7 +67,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/type_radio"/>
 
-        <android.support.v7.widget.AppCompatAutoCompleteTextView
+        <android.support.v7.widget.AppCompatSpinner
             android:id="@+id/transaction_category"
             android:layout_width="match_parent"
             android:layout_height="38dp"

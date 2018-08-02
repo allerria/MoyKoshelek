@@ -1,5 +1,7 @@
 package ru.yandex.moykoshelek.ui.wallet
 
+import android.arch.lifecycle.ViewModelProvider
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.view.LayoutInflater
@@ -8,9 +10,8 @@ import android.view.ViewGroup
 import android.widget.*
 import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
+import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
 import ru.yandex.moykoshelek.data.entities.WalletTypes
-import ru.yandex.moykoshelek.interactors.WalletInteractor
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
 import javax.inject.Inject
@@ -26,7 +27,15 @@ class AddWalletFragment : BaseFragment() {
     lateinit var router: Router
 
     @Inject
-    lateinit var walletInteractor: WalletInteractor
+    lateinit var viewModel: AddWalletViewModel
+
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        viewModel = ViewModelProviders.of(this, factory).get(AddWalletViewModel::class.java)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_add_wallet, container, false)
@@ -70,12 +79,8 @@ class AddWalletFragment : BaseFragment() {
             WalletTypes.BANK_ACCOUNT -> view.findViewById<EditText>(R.id.wallet_account_number).text.toString()
             else -> ""
         }
-        insertWalletDataInDb(wallet)
+        viewModel.addWallet(wallet)
         router.backTo(Screens.BALANCE_SCREEN)
-    }
-
-    private fun insertWalletDataInDb(data: WalletData) {
-        walletInteractor.addWallet(data)
     }
 
     private fun showElectronWalletFields(view: View) {

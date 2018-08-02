@@ -8,24 +8,15 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
+import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
+import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 
 
 class CardsPagerAdapter : PagerAdapter(), CardAdapter {
-    private val views: MutableList<CardView?>
-    private val data: MutableList<WalletData>
+    private val views: MutableList<CardView?> = mutableListOf()
+    private val data: MutableList<WalletData> = mutableListOf()
     override var baseElevation: Float = 0.toFloat()
-
-    init {
-        data = ArrayList()
-        views = ArrayList()
-    }
-
-    fun addCardItem(item: WalletData) {
-        views.add(null)
-        data.add(item)
-    }
 
     override fun getMaxElevationFactor(): Int {
         return 8
@@ -81,6 +72,12 @@ class CardsPagerAdapter : PagerAdapter(), CardAdapter {
 
     fun getItem(currentItem: Int): WalletData {
         return data[currentItem]
+    }
+
+    fun setData(wallets: List<WalletData>) {
+        data.clear()
+        data.addAll(wallets)
+        notifyDataSetChanged()
     }
 
 }

@@ -2,8 +2,8 @@ package ru.yandex.moykoshelek.data.repositories
 
 import android.arch.lifecycle.LiveData
 import kotlinx.coroutines.experimental.launch
-import ru.yandex.moykoshelek.data.datasource.database.dao.WalletDataDao
-import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
+import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDataDao
+import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
 import javax.inject.Inject
 
 class WalletRepository @Inject constructor(private val walletDataDao: WalletDataDao) {

@@ -1,6 +1,9 @@
 package ru.yandex.moykoshelek.ui.transaction
 
 import android.app.Application
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.design.widget.TabLayout
@@ -9,15 +12,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import kotlinx.android.synthetic.main.fragment_add_transaction.*
 import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.ui.balance.CardsPagerAdapter
-import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
+import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.interactors.WalletInteractor
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
+import ru.yandex.moykoshelek.ui.balance.BalanceViewModel
 import javax.inject.Inject
 
 
@@ -35,32 +40,27 @@ class AddTransactionFragment : BaseFragment() {
     lateinit var router: Router
 
     @Inject
-    lateinit var walletInteractor: WalletInteractor
+    lateinit var viewModel: AddTransactionViewModel
 
     @Inject
-    lateinit var app: Application
+    lateinit var factory: ViewModelProvider.Factory
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_add_transaction, container, false)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        viewModel = ViewModelProviders.of(this, factory).get(AddTransactionViewModel::class.java)
     }
-
-    private val COUNTRIES = arrayOf("Belgium", "France", "Italy", "Germany", "Spain")
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        subscribe()
         setupViewPager(view)
-        fetchUniqueCategories(view)
         layout = view.findViewById(R.id.add_transaction_layout)
         view.findViewById<Button>(R.id.submit_button).setOnClickListener { createTransaction(view) }
     }
 
-    private fun fetchUniqueCategories(view: View) {
-        val test = walletInteractor.getCategories()
-        test.observeForever {
-            val adapter = ArrayAdapter<String>(app, android.R.layout.simple_dropdown_item_1line, it)
-            val textView = view.findViewById(R.id.transaction_category) as AutoCompleteTextView
-            textView.setAdapter<ArrayAdapter<String>>(adapter)
-        }
+    override fun onStop() {
+        super.onStop()
+        removeObservers()
     }
 
     private fun createTransaction(view: View) {
@@ -76,22 +76,18 @@ class AddTransactionFragment : BaseFragment() {
         transaction.typeTransaction = if (view.findViewById<RadioButton>(R.id.in_radio).isChecked) TransactionTypes.IN else TransactionTypes.OUT
         val wallet = cardAdapter.getItem(view.findViewById<ViewPager>(R.id.cards_viewpager).currentItem)
         transaction.walletId = wallet.id?.toInt()
-        transaction.category = view.findViewById<AutoCompleteTextView>(R.id.transaction_category).text.toString()
-        insertTransactionDataInDb(transaction)
+        transaction.category = transaction_category.selectedItem.toString()
+        viewModel.addTransaction(transaction)
         var balanceChange = transaction.cost
-        val curr = walletInteractor.getCurrencyRate().value!!
+        val curr = viewModel.currencyRate.value!!
         if (wallet.currency != transaction.currency)
             balanceChange = if (transaction.currency == CurrencyTypes.USD) transaction.cost * curr else transaction.cost / curr
         if (transaction.typeTransaction == TransactionTypes.IN)
             wallet.balance += balanceChange
         else
             wallet.balance -= balanceChange
-        walletInteractor.updateWallet(wallet)
+        viewModel.updateWallet(wallet)
         router.backTo(Screens.BALANCE_SCREEN)
-    }
-
-    private fun insertTransactionDataInDb(data: TransactionData) {
-        walletInteractor.addTransaction(data)
     }
 
     private fun setupViewPager(view: View) {
@@ -99,7 +95,6 @@ class AddTransactionFragment : BaseFragment() {
         tabLayout = view.findViewById(R.id.tab_dots) as TabLayout
         tabLayout.setupWithViewPager(viewPager, true)
         cardAdapter = CardsPagerAdapter()
-        fetchwalletsDataFromDb()
         viewPager.adapter = cardAdapter
         viewPager.offscreenPageLimit = 3
         viewPager.clipToPadding = false
@@ -107,13 +102,23 @@ class AddTransactionFragment : BaseFragment() {
         viewPager.pageMargin = 48
     }
 
-    private fun fetchwalletsDataFromDb() {
-        val test = walletInteractor.getWallets()
-        test.observeForever {
-            for (i in 0 until it!!.size)
-                cardAdapter.addCardItem(it[i])
-            cardAdapter.notifyDataSetChanged()
 
-        }
+    private fun subscribe() {
+
+        viewModel.categories.observe(this, Observer { categories ->
+            val adapter = ArrayAdapter<String>(this@AddTransactionFragment.context, android.R.layout.simple_dropdown_item_1line, categories)
+            val textView = transaction_category
+            textView.adapter = adapter
+        })
+
+        viewModel.wallets.observe(this, Observer { wallets ->
+            cardAdapter.setData(wallets!!)
+        })
+
+    }
+
+    private fun removeObservers() {
+        viewModel.categories.removeObservers(this)
+        viewModel.wallets.removeObservers(this)
     }
 }

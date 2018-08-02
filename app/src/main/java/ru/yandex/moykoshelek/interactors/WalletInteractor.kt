@@ -1,9 +1,7 @@
 package ru.yandex.moykoshelek.interactors
 
-import ru.yandex.moykoshelek.data.datasource.database.dao.TransactionDataDao
-import ru.yandex.moykoshelek.data.datasource.database.dao.WalletDataDao
-import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
-import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
+import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
+import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
 import ru.yandex.moykoshelek.data.repositories.CurrencyRateRepository
 import ru.yandex.moykoshelek.data.repositories.TransactionsRepository
 import ru.yandex.moykoshelek.data.repositories.WalletRepository

@@ -37,7 +37,7 @@ import javax.inject.Inject
 class MainActivity : BaseActivity(), InternetConnectivityListener {
 
     override val layoutRes = R.layout.activity_main
-    val uiHandler = Handler()
+
     private lateinit var internetAvailabilityChecker: InternetAvailabilityChecker
 
     @Inject
@@ -70,16 +70,16 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
     }
 
     private fun getCurrencyFromInternet() {
-        AndroidNetworking.get("https://free.currencyconverterapi.com/api/v6/convert?q=USD_RUB&compact=y")
-                .build()
-                .getAsJSONObject(object : JSONObjectRequestListener {
-                    override fun onResponse(response: JSONObject) {
-                        val currency: Float = response.getJSONObject("USD_RUB").getDouble("val").toFloat()
-                        walletInteractor.setCurrencyRate(currency)
-                    }
+                AndroidNetworking.get("https://free.currencyconverterapi.com/api/v6/convert?q=USD_RUB&compact=y")
+                        .build()
+                    .getAsJSONObject(object : JSONObjectRequestListener {
+                        override fun onResponse(response: JSONObject) {
+                            val currency: Float = response.getJSONObject("USD_RUB").getDouble("val").toFloat()
+                            walletInteractor.setCurrencyRate(currency)
+                        }
 
-                    override fun onError(error: ANError) {
-                        Log.e("CurrencyError", error.errorBody)
+                        override fun onError(error: ANError) {
+                            Log.e("CurrencyError", error.errorBody)
                     }
                 })
     }

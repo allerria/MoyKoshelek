@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import org.jetbrains.anko.textColorResource
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.data.datasource.database.entities.TransactionData
+import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.ui.common.expandablelayout.ExpandableLayout

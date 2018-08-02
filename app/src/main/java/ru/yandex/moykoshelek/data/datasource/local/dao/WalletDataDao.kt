@@ -1,8 +1,8 @@
-package ru.yandex.moykoshelek.data.datasource.database.dao
+package ru.yandex.moykoshelek.data.datasource.local.dao
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
-import ru.yandex.moykoshelek.data.datasource.database.entities.WalletData
+import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
 
 @Dao
 interface WalletDataDao {
