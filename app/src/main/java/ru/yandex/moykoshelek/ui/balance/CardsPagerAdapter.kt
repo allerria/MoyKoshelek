@@ -4,27 +4,18 @@ import android.view.ViewGroup
 import android.support.v7.widget.CardView
 import android.view.LayoutInflater
 import android.support.v4.view.PagerAdapter
+import android.support.v4.view.ViewPager
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import kotlinx.android.synthetic.main.card_view.view.*
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
-import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
+import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 
 
-class CardsPagerAdapter : PagerAdapter(), CardAdapter {
-    private val views: MutableList<CardView?> = mutableListOf()
-    private val data: MutableList<WalletData> = mutableListOf()
-    override var baseElevation: Float = 0.toFloat()
-
-    override fun getMaxElevationFactor(): Int {
-        return 8
-    }
-
-    override fun getCardViewAt(position: Int): CardView? {
-        return views[position]
-    }
+class CardsPagerAdapter : PagerAdapter() {
+    private val data: MutableList<Wallet> = mutableListOf()
 
     override fun getCount(): Int {
         return data.size
@@ -38,46 +29,32 @@ class CardsPagerAdapter : PagerAdapter(), CardAdapter {
         val view = LayoutInflater.from(container.context)
                 .inflate(R.layout.card_view, container, false)
         container.addView(view)
+        view.tag = data[position].id
         bind(data[position], view)
-        val cardView = view.findViewById(R.id.card_layout) as CardView
-
-        if (baseElevation == 0f) {
-            baseElevation = cardView.cardElevation
-        }
-
-        cardView.maxCardElevation = baseElevation * getMaxElevationFactor()
-        views[position] = cardView
         return view
     }
 
-    override fun destroyItem(container: ViewGroup, position: Int, obj: Any) {
-        container.removeView(obj as View)
-        views[position] = null
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+        (container as ViewPager).removeView(`object` as View)
     }
 
-    private fun bind(item: WalletData, view: View) {
-        val cardBackground = view.findViewById<ImageView>(R.id.card_background)
-        val cardName = view.findViewById<TextView>(R.id.card_name)
-        val cardNumber = view.findViewById<TextView>(R.id.card_number)
-        val cardBalance = view.findViewById<TextView>(R.id.card_balance)
-        val cardDate = view.findViewById<TextView>(R.id.card_date)
-        cardName.text = item.name
-        cardNumber.text = item.number
-        var currency = if (CurrencyTypes.USD == item.currency) "$ " else "\u20BD "
-        currency += String.format("%.2f", item.balance)
-        cardBalance.text = currency
-        cardDate.text = item.date
-
+    private fun bind(item: Wallet, view: View) {
+        with(view) {
+            card_name.text = item.name
+            card_number.text = item.number
+            var currency = if (CurrencyTypes.USD == item.currency) "$ " else "\u20BD "
+            currency += String.format("%.2f", item.balance)
+            card_balance.text = currency
+            card_date.text = item.date
+        }
     }
 
-    fun getItem(currentItem: Int): WalletData {
-        return data[currentItem]
-    }
-
-    fun setData(wallets: List<WalletData>) {
+    fun setData(wallets: List<Wallet>) {
         data.clear()
         data.addAll(wallets)
         notifyDataSetChanged()
     }
+
+    fun getItem(position: Int): Wallet = data[position]
 
 }

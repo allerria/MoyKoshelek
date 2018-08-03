@@ -4,8 +4,8 @@ import android.app.Application
 import dagger.Module
 import dagger.Provides
 import ru.yandex.moykoshelek.data.datasource.local.CurrencyPref
-import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDataDao
-import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDataDao
+import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDao
+import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDao
 import ru.yandex.moykoshelek.data.repositories.CurrencyRateRepository
 import ru.yandex.moykoshelek.data.repositories.TransactionsRepository
 import ru.yandex.moykoshelek.data.repositories.WalletRepository
@@ -19,11 +19,11 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideWalletRepository(walletDataDao: WalletDataDao): WalletRepository = WalletRepository(walletDataDao)
+    fun provideWalletRepository(walletDao: WalletDao): WalletRepository = WalletRepository(walletDao)
 
     @Provides
     @Singleton
-    fun provideTransactionsRepository(transactionDataDao: TransactionDataDao): TransactionsRepository = TransactionsRepository(transactionDataDao)
+    fun provideTransactionsRepository(transactionDao: TransactionDao): TransactionsRepository = TransactionsRepository(transactionDao)
 
     @Provides
     @Singleton

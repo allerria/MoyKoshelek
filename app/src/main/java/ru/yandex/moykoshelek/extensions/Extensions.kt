@@ -22,5 +22,3 @@ fun Activity.hideKeyboard() {
         inputManager.hideSoftInputFromWindow(window.currentFocus.windowToken, 0)
     }
 }
-
-inline fun String.toDouble(): Double = java.lang.Double.parseDouble(this)

@@ -2,15 +2,16 @@ package ru.yandex.moykoshelek.data.datasource.local
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
-import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDataDao
-import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDataDao
-import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
-import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
+import android.content.Context
+import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDao
+import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDao
+import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
+import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 
-@Database(entities = [TransactionData::class, WalletData::class], version = 2, exportSchema = false)
+@Database(entities = [Transaction::class, Wallet::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract val transactionDataDao: TransactionDataDao
-    abstract val walletDataDao: WalletDataDao
+    abstract val transactionDao: TransactionDao
+    abstract val walletDao: WalletDao
 
 }

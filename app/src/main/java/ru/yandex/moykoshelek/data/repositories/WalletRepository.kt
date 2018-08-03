@@ -1,24 +1,33 @@
 package ru.yandex.moykoshelek.data.repositories
 
 import android.arch.lifecycle.LiveData
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDataDao
-import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
+import kotlinx.coroutines.experimental.runBlocking
+import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDao
+import ru.yandex.moykoshelek.data.datasource.local.dao.getWallets
+import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 import javax.inject.Inject
 
-class WalletRepository @Inject constructor(private val walletDataDao: WalletDataDao) {
+class WalletRepository @Inject constructor(private val walletDao: WalletDao) {
 
-    fun getWallets(): LiveData<List<WalletData>> = walletDataDao.getAll()
+    fun getWallets(): LiveData<List<Wallet>> {
+        lateinit var result: LiveData<List<Wallet>>
+        runBlocking {
+            result = walletDao.getWallets()
+        }
+        return result
+    }
 
-    fun addWallet(wallet: WalletData) {
+    fun addWallet(wallet: Wallet) {
         launch {
-            walletDataDao.insert(wallet)
+            walletDao.insert(wallet)
         }
     }
 
-    fun updateWallet(wallet: WalletData) {
+    fun updateWallet(wallet: Wallet) {
         launch {
-            walletDataDao.update(wallet)
+            walletDao.update(wallet)
         }
     }
 

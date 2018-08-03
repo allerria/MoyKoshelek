@@ -6,4 +6,6 @@ object Screens {
     const val ADD_TRANSACTION_SCREEN = "addTransactionFragment"
     const val MENU_SCREEN = "menuFragment"
     const val ADD_WALLET_SCREEN = "addWalletFragment"
+    const val SETTINGS_SCREEN = "settingsFragment"
+    const val ABOUT_SCREEN = "aboutFragment"
 }

@@ -1,7 +1,10 @@
 package ru.yandex.moykoshelek.interactors
 
-import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
-import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MediatorLiveData
+import android.arch.lifecycle.Transformations
+import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
+import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 import ru.yandex.moykoshelek.data.repositories.CurrencyRateRepository
 import ru.yandex.moykoshelek.data.repositories.TransactionsRepository
 import ru.yandex.moykoshelek.data.repositories.WalletRepository
@@ -16,23 +19,28 @@ class WalletInteractor @Inject constructor(
 
     fun getTransactions() = transactionsRepository.getTransactions()
 
+    fun getTransactions(walletId: Int) =
+            Transformations.map(transactionsRepository.getTransactions())
+            { transactions -> transactions.filter { walletId == it.walletId }.sortedByDescending { it.id } }
+
     fun getCategories() = transactionsRepository.getCategories()
 
     fun getCurrencyRate() = currencyRateRepository.getCurrencyRate()
 
-    fun addWallet(walletData: WalletData) {
-        walletRepository.addWallet(walletData)
+    fun addWallet(wallet: Wallet) {
+        walletRepository.addWallet(wallet)
     }
 
-    fun addTransaction(transactionData: TransactionData) {
-        transactionsRepository.addTransaction(transactionData)
+    fun addTransaction(transaction: Transaction) {
+        transactionsRepository.addTransaction(transaction)
     }
 
-    fun updateWallet(walletData: WalletData) {
-        walletRepository.updateWallet(walletData)
+    fun updateWallet(wallet: Wallet) {
+        walletRepository.updateWallet(wallet)
     }
 
     fun setCurrencyRate(currencyRate: Float) {
         currencyRateRepository.addOrUpdateCurrencyRate(currencyRate)
     }
+
 }

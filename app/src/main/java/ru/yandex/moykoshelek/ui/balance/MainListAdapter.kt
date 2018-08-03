@@ -1,6 +1,7 @@
 package ru.yandex.moykoshelek.ui.balance
 
 import android.content.Context
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -9,19 +10,19 @@ import android.widget.ImageView
 import android.widget.TextView
 import org.jetbrains.anko.textColorResource
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
+import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
+import ru.yandex.moykoshelek.ui.common.TransactionDiffUtil
 import ru.yandex.moykoshelek.ui.common.expandablelayout.ExpandableLayout
 
 class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<MainListAdapter.ViewHolder>() {
 
-    private val data: MutableList<TransactionData> = mutableListOf()
+    private val data: MutableList<Transaction> = mutableListOf()
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
 
         viewHolder.transactionTag.text = data[position].category
-        //viewHolder.transactionCardName = transactionList[position].
         var currency = (if (data[position].currency == CurrencyTypes.USD) "$ " else "\u20BD ") + data[position].cost
         if (data[position].typeTransaction == TransactionTypes.IN) {
             currency = "+ $currency"
@@ -64,10 +65,12 @@ class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<Main
         }
     }
 
-    fun setData(transactionList: List<TransactionData>) {
+    fun setData(transactionList: List<Transaction>) {
+        val diffResult = DiffUtil.calculateDiff(TransactionDiffUtil(data, transactionList))
+        diffResult.dispatchUpdatesTo(this)
         data.clear()
-        data.addAll(transactionList)
-        notifyDataSetChanged()
+        data.addAll(transactionList
+        )
     }
 
 }

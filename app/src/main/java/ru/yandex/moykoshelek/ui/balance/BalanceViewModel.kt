@@ -1,16 +1,23 @@
 package ru.yandex.moykoshelek.ui.balance
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
-import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
-import ru.yandex.moykoshelek.data.datasource.local.entities.WalletData
+import android.widget.Toast
+import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
+import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
+import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.interactors.WalletInteractor
+import timber.log.Timber
 import javax.inject.Inject
 
 class BalanceViewModel @Inject constructor(private val walletInteractor: WalletInteractor): ViewModel(){
 
-    val wallets: LiveData<List<WalletData>> = walletInteractor.getWallets()
-    val transactions: LiveData<List<TransactionData>> = walletInteractor.getTransactions()
-    val currencyRate: LiveData<Float> = walletInteractor.getCurrencyRate()
+    val wallets: LiveData<List<Wallet>> = walletInteractor.getWallets()
+
+    fun getTransactions(walletId: Int) = walletInteractor.getTransactions(walletId)
+
+    fun getWalletId(position: Int): Int {
+        return wallets.value!![position].id!!
+    }
 }

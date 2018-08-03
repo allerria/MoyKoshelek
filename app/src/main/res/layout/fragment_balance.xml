@@ -33,97 +33,8 @@
             android:layout_height="1dp"
             android:layout_marginTop="16dp"
             android:background="@color/gray"
-            app:layout_constraintTop_toBottomOf="@+id/tab_dots" />
+            app:layout_constraintTop_toBottomOf="@+id/cards_viewpager" />
 
-        <LinearLayout
-            android:id="@+id/sum_amount_block_usd"
-            android:layout_width="140dp"
-            android:layout_height="73dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/pink_gradient"
-            android:orientation="vertical"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/separator_line_end_cards">
-
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/sum_amount_usd_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/test_balance_amount"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <android.support.v7.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/in_balance"
-                android:textAlignment="center"
-                android:textColor="#ffffff"
-                android:textSize="12sp"
-                android:textStyle="normal" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/sum_amount_block_rub"
-            android:layout_width="140dp"
-            android:layout_height="73dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/orange_gradient"
-            android:orientation="vertical"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/separator_line_end_cards">
-
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/sum_amount_rub_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/test_balance_amount"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <android.support.v7.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/in_balance"
-                android:textAlignment="center"
-                android:textColor="#ffffff"
-                android:textSize="12sp"
-                android:textStyle="normal" />
-        </LinearLayout>
-
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/sum_describe_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="30dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="24dp"
-            android:fontFamily="sans-serif"
-            android:gravity="center_horizontal"
-            android:text="Эти показатели суммирует всех карт и банковских счетов"
-            android:textColor="#9b9b9b"
-            android:textSize="12sp"
-            android:textStyle="normal"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sum_amount_block_usd" />
 
         <View
             android:id="@+id/separator_line_end_sum"
@@ -131,45 +42,13 @@
             android:layout_height="1dp"
             android:layout_marginTop="24dp"
             android:background="@color/gray"
-            app:layout_constraintTop_toBottomOf="@+id/sum_describe_tv" />
+            app:layout_constraintTop_toBottomOf="@+id/separator_line_end_cards" />
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/last_history_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="24dp"
-            android:fontFamily="sans-serif"
-            android:text="@string/last_history"
-            android:textColor="#9b9b9b"
-            android:textSize="12sp"
-            android:textStyle="normal"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/separator_line_end_sum" />
-
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/last_history_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="30dp"
-            android:layout_marginRight="30dp"
-            android:background="@null"
-            android:fontFamily="sans-serif"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:padding="0dp"
-            android:text="все"
-            android:textColor="@color/blue_link"
-            android:textSize="12sp"
-            android:textStyle="normal"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@id/last_history_tv" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/transaction_rv"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginEnd="30dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
@@ -177,26 +56,7 @@
             android:layout_marginTop="16dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/last_history_tv" />
-
-        <android.support.v7.widget.AppCompatButton
-            android:layout_width="match_parent"
-            android:layout_height="42dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginBottom="30dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/button_background"
-            android:fontFamily="sans-serif"
-            android:textColor="#9b9b9b"
-            android:textSize="12sp"
-            android:textStyle="normal"
-            android:text="@string/all_actions"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/transaction_rv"
+            app:layout_constraintTop_toBottomOf="@id/separator_line_end_sum"
             app:layout_constraintBottom_toBottomOf="parent"/>
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

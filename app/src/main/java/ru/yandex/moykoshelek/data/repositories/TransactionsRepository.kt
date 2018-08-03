@@ -2,20 +2,28 @@ package ru.yandex.moykoshelek.data.repositories
 
 import android.arch.lifecycle.LiveData
 import kotlinx.coroutines.experimental.launch
-import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDataDao
-import ru.yandex.moykoshelek.data.datasource.local.entities.TransactionData
+import kotlinx.coroutines.experimental.runBlocking
+import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDao
+import ru.yandex.moykoshelek.data.datasource.local.dao.getWallets
+import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import javax.inject.Inject
 
-class TransactionsRepository @Inject constructor(private val transactionDataDao: TransactionDataDao) {
+class TransactionsRepository @Inject constructor(private val transactionDao: TransactionDao) {
 
-    fun getTransactions(): LiveData<List<TransactionData>> = transactionDataDao.getAll()
+    fun getTransactions(): LiveData<List<Transaction>> {
+        lateinit var result: LiveData<List<Transaction>>
+        runBlocking {
+            result = transactionDao.getWallets()
+        }
+        return result
+    }
 
-    fun getCategories(): LiveData<List<String>> = transactionDataDao.getCategories()
+    fun getCategories(): LiveData<List<String>> = transactionDao.getCategories()
 
-    fun addTransaction(transactionData: TransactionData) {
+    fun addTransaction(transaction: Transaction) {
 
         launch {
-            transactionDataDao.insert(transactionData)
+            transactionDao.insert(transaction)
         }
 
     }
