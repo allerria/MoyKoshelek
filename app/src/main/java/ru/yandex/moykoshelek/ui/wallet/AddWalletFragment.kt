@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import kotlinx.android.synthetic.main.fragment_add_wallet.*
+import org.jetbrains.anko.forEachChild
+import org.jetbrains.anko.forEachChildWithIndex
 import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
@@ -36,36 +38,34 @@ class AddWalletFragment : BaseFragment() {
         viewModel = ViewModelProviders.of(this, factory).get(AddWalletViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_add_wallet, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         wallet_type_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
+
             override fun onItemSelected(parent: AdapterView<*>?, v: View?, position: Int, id: Long) {
                 hideAllItems()
                 when (position) {
-                    WalletTypes.BANK_ACCOUNT -> showBankAccountFields(view)
-                    WalletTypes.CASH_MONEY -> showCashMoneyFields(view)
-                    WalletTypes.CREDIT_CARD -> showCreditCardFields(view)
-                    WalletTypes.E_WALLET -> showElectronWalletFields(view)
+                    WalletTypes.BANK_ACCOUNT -> showBankAccountFields()
+                    WalletTypes.CASH_MONEY -> showCashMoneyFields()
+                    WalletTypes.CREDIT_CARD -> showCreditCardFields()
+                    WalletTypes.E_WALLET -> showElectronWalletFields()
                 }
                 icon_currency.visibility = View.VISIBLE
                 wallet_currency_spinner.visibility = View.VISIBLE
                 submit_button.visibility = View.VISIBLE
             }
         }
-        view.findViewById<Button>(R.id.submit_button).setOnClickListener { createWallet(view) }
+        view.findViewById<Button>(R.id.submit_button).setOnClickListener { createWallet() }
     }
 
-    private fun createWallet(view: View) {
-        for (i in 0 until create_wallet_layout.childCount)
-            if (create_wallet_layout.getChildAt(i).visibility == View.VISIBLE && create_wallet_layout.getChildAt(i) is EditText && (create_wallet_layout.getChildAt(i) as EditText).text.isEmpty()) {
-                (create_wallet_layout.getChildAt(i) as EditText).error = "Пожалуйста, запольните полье"
+    private fun createWallet() {
+        create_wallet_layout.forEachChild {
+            if (it.visibility == View.VISIBLE && it is EditText && it.text.isEmpty()) {
+                it.error = "Пожалуйста, запольните полье"
                 return
             }
+        }
         val wallet = Wallet()
         wallet.type = wallet_type_spinner.selectedItemPosition
         wallet.currency = wallet_currency_spinner.selectedItemPosition
@@ -81,7 +81,7 @@ class AddWalletFragment : BaseFragment() {
         router.backTo(Screens.BALANCE_SCREEN)
     }
 
-    private fun showElectronWalletFields(view: View) {
+    private fun showElectronWalletFields() {
         icon_name.visibility = View.VISIBLE
         wallet_name.visibility = View.VISIBLE
         wallet_name.hint = "Название кошелька"
@@ -91,7 +91,7 @@ class AddWalletFragment : BaseFragment() {
         wallet_number.hint = "Номер кошелька"
     }
 
-    private fun showCreditCardFields(view: View) {
+    private fun showCreditCardFields() {
         icon_name.visibility = View.VISIBLE
         wallet_name.visibility = View.VISIBLE
         wallet_name.hint = "Имя владельца"
@@ -105,13 +105,13 @@ class AddWalletFragment : BaseFragment() {
         wallet_card_date.hint = "Срок действия карты"
     }
 
-    private fun showCashMoneyFields(view: View) {
+    private fun showCashMoneyFields() {
         icon_name.visibility = View.VISIBLE
         wallet_name.visibility = View.VISIBLE
         wallet_name.hint = "Название кошелька"
     }
 
-    private fun showBankAccountFields(view: View) {
+    private fun showBankAccountFields() {
         icon_name.visibility = View.VISIBLE
         wallet_name.visibility = View.VISIBLE
         wallet_name.hint = "Название банка или счета"
@@ -122,9 +122,10 @@ class AddWalletFragment : BaseFragment() {
     }
 
     private fun hideAllItems() {
-        for (i in 3 until create_wallet_layout.childCount) {
-            val child = create_wallet_layout.getChildAt(i)
-            child.visibility = View.GONE
+        create_wallet_layout.forEachChildWithIndex { i, it ->
+            if (i > 1) {
+                it.visibility = View.GONE
+            }
         }
     }
 }

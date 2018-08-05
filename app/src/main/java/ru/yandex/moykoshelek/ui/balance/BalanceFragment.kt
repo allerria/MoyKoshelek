@@ -10,11 +10,14 @@ import android.view.View
 import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.card_view.view.*
 import kotlinx.android.synthetic.main.fragment_balance.*
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class BalanceFragment : BaseFragment() {
@@ -35,6 +38,7 @@ class BalanceFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this, factory).get(BalanceViewModel::class.java)
         initObservers()
+        viewModel.checkPeriodTransactions()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,7 +50,7 @@ class BalanceFragment : BaseFragment() {
     }
 
     private fun initObservers() {
-
+        viewModel.updateCurrencyRate()
         viewModel.wallets.observe(this, Observer { wallets ->
             if (wallets != null && wallets.isNotEmpty()) {
                 cardAdapter.setData(wallets)
@@ -97,6 +101,7 @@ class BalanceFragment : BaseFragment() {
         viewModel.getTransactions(viewModel.getWalletId(walletPosition)).observe(this@BalanceFragment, Observer { it ->
             transactionAdapter.setData(it!!)
         })
+
     }
 
 }

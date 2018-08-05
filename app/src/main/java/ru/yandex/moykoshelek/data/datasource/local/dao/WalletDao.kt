@@ -19,6 +19,8 @@ interface WalletDao {
     @Update
     fun update(wallet: Wallet)
 
+    @Query("update wallets set balance = balance + :transactionCost where id = :walletId")
+    fun executeTransaction(walletId: Int, transactionCost: Double)
 }
 
-suspend fun WalletDao.getWallets(): LiveData<List<Wallet>> = withContext(DefaultDispatcher) { getAll() }
+suspend fun WalletDao.getTransactions(): LiveData<List<Wallet>> = withContext(DefaultDispatcher) { getAll() }

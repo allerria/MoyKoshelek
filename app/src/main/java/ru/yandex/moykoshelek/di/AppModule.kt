@@ -4,6 +4,7 @@ import android.app.Application
 import dagger.Module
 import dagger.Provides
 import ru.yandex.moykoshelek.data.datasource.local.CurrencyPref
+import ru.yandex.moykoshelek.data.datasource.local.dao.PeriodTransactionDao
 import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDao
 import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDao
 import ru.yandex.moykoshelek.data.repositories.CurrencyRateRepository
@@ -23,7 +24,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideTransactionsRepository(transactionDao: TransactionDao): TransactionsRepository = TransactionsRepository(transactionDao)
+    fun provideTransactionsRepository(transactionDao: TransactionDao, periodTransactionDao: PeriodTransactionDao): TransactionsRepository = TransactionsRepository(transactionDao, periodTransactionDao)
 
     @Provides
     @Singleton

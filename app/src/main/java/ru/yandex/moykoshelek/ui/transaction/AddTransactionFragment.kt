@@ -7,14 +7,17 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.fragment_add_transaction.*
+import org.jetbrains.anko.forEachChild
+import org.jetbrains.anko.sdk25.coroutines.onCheckedChange
 import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.ui.balance.CardsPagerAdapter
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
-import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
+import ru.yandex.moykoshelek.extensions.getCurrentDateTime
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
+import java.util.*
 import javax.inject.Inject
 
 
@@ -43,33 +46,44 @@ class AddTransactionFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupViewPager()
+        in_radio.onCheckedChange { _, isChecked ->
+            if (isChecked) {
+                transaction_category.adapter = ArrayAdapter<String>(context, android.R.layout.simple_selectable_list_item, resources.getStringArray(R.array.transaction_income_categories))
+            } else {
+                transaction_category.adapter = ArrayAdapter<String>(context, android.R.layout.simple_selectable_list_item, resources.getStringArray(R.array.transaction_expense_categories))
+            }
+        }
+        period_check_box.onCheckedChange { _, isChecked ->
+            if (isChecked) {
+                period_edit_text.visibility = View.VISIBLE
+            } else {
+                period_edit_text.visibility = View.GONE
+            }
+        }
         submit_button.setOnClickListener { createTransaction() }
     }
 
     private fun createTransaction() {
-        for (i in 0 until add_transaction_layout.childCount)
-            if (add_transaction_layout.getChildAt(i).visibility == View.VISIBLE && add_transaction_layout.getChildAt(i) is EditText && (add_transaction_layout.getChildAt(i) as EditText).text.isEmpty()) {
-                (add_transaction_layout.getChildAt(i) as EditText).error = "Пожалуйста заполните поле"
+        add_transaction_layout.forEachChild {
+            if (it.visibility == View.VISIBLE && it is EditText && it.text.isEmpty()) {
+                it.error = "Пожалуйста заполните поле"
                 return
             }
+        }
         val transaction = Transaction()
         transaction.cost = transaction_amount.text.toString().toDouble()
-        transaction.currency = transaction_currency_spinner.selectedItemPosition
         transaction.placeholder = "Moscow, Russia"
-        transaction.typeTransaction = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
-        val wallet = cardAdapter.getItem(cards_viewpager.currentItem)
+        transaction.type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
+        val wallet = viewModel.getWallet(cards_viewpager.currentItem)
+        transaction.currency = wallet.currency
         transaction.walletId = wallet.id
-        transaction.category = transaction_category.text.toString()
-        viewModel.addTransaction(transaction)
-        var balanceChange = transaction.cost
-        val curr = viewModel.currencyRate.value!!
-        if (wallet.currency != transaction.currency)
-            balanceChange = if (transaction.currency == CurrencyTypes.USD) transaction.cost * curr else transaction.cost / curr
-        if (transaction.typeTransaction == TransactionTypes.IN)
-            wallet.balance += balanceChange
-        else
-            wallet.balance -= balanceChange
-        viewModel.updateWallet(wallet)
+        transaction.date = getCurrentDateTime()
+        transaction.category = transaction_category.selectedItem.toString()
+        if (period_check_box.isChecked) {
+            viewModel.executePeriodTransaction(transaction, period_edit_text.text.toString().toInt())
+        } else {
+            viewModel.executeTransaction(transaction)
+        }
         router.backTo(Screens.BALANCE_SCREEN)
     }
 
@@ -85,11 +99,6 @@ class AddTransactionFragment : BaseFragment() {
 
 
     private fun initObservers() {
-
-        viewModel.categories.observe(this, Observer { categories ->
-            val adapter = ArrayAdapter<String>(this@AddTransactionFragment.context, android.R.layout.simple_dropdown_item_1line, categories)
-            transaction_category.setAdapter(adapter)
-        })
 
         viewModel.wallets.observe(this, Observer { wallets ->
             cardAdapter.setData(wallets!!)

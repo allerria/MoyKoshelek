@@ -55,6 +55,4 @@ class CardsPagerAdapter : PagerAdapter() {
         notifyDataSetChanged()
     }
 
-    fun getItem(position: Int): Wallet = data[position]
-
 }

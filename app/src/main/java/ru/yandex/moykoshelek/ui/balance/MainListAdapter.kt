@@ -13,6 +13,7 @@ import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
+import ru.yandex.moykoshelek.extensions.toString
 import ru.yandex.moykoshelek.ui.common.TransactionDiffUtil
 import ru.yandex.moykoshelek.ui.common.expandablelayout.ExpandableLayout
 
@@ -24,7 +25,7 @@ class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<Main
 
         viewHolder.transactionTag.text = data[position].category
         var currency = (if (data[position].currency == CurrencyTypes.USD) "$ " else "\u20BD ") + data[position].cost
-        if (data[position].typeTransaction == TransactionTypes.IN) {
+        if (data[position].type == TransactionTypes.IN) {
             currency = "+ $currency"
             viewHolder.transactionAmount.textColorResource = android.R.color.holo_green_light
         } else {
@@ -33,7 +34,7 @@ class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<Main
         }
         viewHolder.transactionAmount.text = currency
         viewHolder.transactionPlaceholder.text = data[position].placeholder
-        viewHolder.transactionTime.text = data[position].time
+        viewHolder.transactionTime.text = data[position].date.toString("yyyy/MM/dd HH:mm:ss")
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {

@@ -2,7 +2,6 @@ package ru.yandex.moykoshelek
 
 import android.app.Application
 import com.androidnetworking.AndroidNetworking
-import com.treebo.internetavailabilitychecker.InternetAvailabilityChecker
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 import ru.yandex.moykoshelek.di.DaggerAppComponent
@@ -20,8 +19,6 @@ class MoyKoshelekApp : DaggerApplication() {
     override fun onCreate() {
         super.onCreate()
         AndroidNetworking.initialize(applicationContext)
-        InternetAvailabilityChecker.init(this)
-
         instance = this
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())

@@ -37,6 +37,18 @@
     <string name="permission_rationale">Требуется разрешение на размещение для основных функций</string>
     <string name="category">Категория</string>
 
+    <string name="auto">Auto</string>
+    <string name="clothing">Clothing</string>
+    <string name="house">House</string>
+    <string name="cafe_and_restaurants">Cafe and Restaurants</string>
+    <string name="entertainment">Entertainment</string>
+    <string name="health">Health</string>
+    <string name="other">Other</string>
+    <string name="salary">Salary</string>
+    <string name="gift">Gift</string>
+    <string name="periodic_transaction">Периодичная транзакция</string>
+    <string name="period">Период</string>
+
     <string-array name="wallet_types">
         <item>Наличные деньги</item>
         <item>Кредитная карта</item>
@@ -46,5 +58,19 @@
     <string-array name="currency_types">
         <item>USD</item>
         <item>RUB</item>
+    </string-array>
+    <string-array name="transaction_expense_categories">
+        <item>@string/auto</item>
+        <item>@string/clothing</item>
+        <item>@string/house</item>
+        <item>@string/cafe_and_restaurants</item>
+        <item>@string/entertainment</item>
+        <item>@string/health</item>
+        <item>@string/other</item>
+    </string-array>
+    <string-array name="transaction_income_categories">
+        <item>@string/salary</item>
+        <item>@string/gift</item>
+        <item>@string/other</item>
     </string-array>
 </resources>

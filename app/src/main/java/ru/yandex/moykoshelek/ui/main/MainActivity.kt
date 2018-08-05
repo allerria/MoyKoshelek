@@ -8,15 +8,7 @@ import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import com.androidnetworking.AndroidNetworking
-import com.androidnetworking.error.ANError
-import com.androidnetworking.interfaces.JSONObjectRequestListener
-import com.treebo.internetavailabilitychecker.InternetAvailabilityChecker
-import com.treebo.internetavailabilitychecker.InternetConnectivityListener
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
-import org.jetbrains.anko.coroutines.experimental.bg
 import org.jetbrains.anko.selector
 import org.json.JSONObject
 import ru.terrakok.cicerone.Router
@@ -29,64 +21,28 @@ import ru.yandex.moykoshelek.ui.menu.MenuFragment
 import ru.yandex.moykoshelek.interactors.WalletInteractor
 import ru.yandex.moykoshelek.ui.common.BaseActivity
 import ru.yandex.moykoshelek.ui.Screens
+import ru.yandex.moykoshelek.ui.about.AboutFragment
 import ru.yandex.moykoshelek.ui.common.BaseFragment
+import ru.yandex.moykoshelek.ui.settings.SettingsFragment
 import timber.log.Timber
 import javax.inject.Inject
 
 
-class MainActivity : BaseActivity(), InternetConnectivityListener {
+class MainActivity : BaseActivity() {
 
     override val layoutRes = R.layout.activity_main
 
-    private lateinit var internetAvailabilityChecker: InternetAvailabilityChecker
-
     @Inject
     lateinit var router: Router
-
-    @Inject
-    lateinit var walletInteractor: WalletInteractor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             router.newRootScreen(Screens.BALANCE_SCREEN)
         }
-        internetAvailabilityChecker = InternetAvailabilityChecker.getInstance()
-        internetAvailabilityChecker.addInternetConnectivityListener(this)
         setSupportActionBar(toolbar)
         initToolbarIcon()
         supportFragmentManager.addOnBackStackChangedListener { initToolbarIcon() }
-        onInternetConnectivityChanged(true)
-    }
-
-    override fun onInternetConnectivityChanged(isConnected: Boolean) {
-        if (isConnected) {
-            launch {
-                bg {
-                    getCurrencyFromInternet()
-                }
-            }
-        }
-    }
-
-    private fun getCurrencyFromInternet() {
-                AndroidNetworking.get("https://free.currencyconverterapi.com/api/v6/convert?q=USD_RUB&compact=y")
-                        .build()
-                    .getAsJSONObject(object : JSONObjectRequestListener {
-                        override fun onResponse(response: JSONObject) {
-                            val currency: Float = response.getJSONObject("USD_RUB").getDouble("val").toFloat()
-                            walletInteractor.setCurrencyRate(currency)
-                        }
-
-                        override fun onError(error: ANError) {
-                            Log.e("CurrencyError", error.errorBody)
-                    }
-                })
-    }
-
-    override fun onStop() {
-        internetAvailabilityChecker.removeInternetConnectivityChangeListener(this)
-        super.onStop()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -99,7 +55,7 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
             R.id.action_add -> showSelectAddDialog()
             android.R.id.home -> {
                 if ((supportFragmentManager.fragments.first() as BaseFragment).TAG != Screens.BALANCE_SCREEN) {
-                    router.exit()
+                    router.backTo(Screens.BALANCE_SCREEN)
                 } else {
                     router.navigateTo(Screens.MENU_SCREEN)
                 }
@@ -117,6 +73,8 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
             Screens.MENU_SCREEN -> MenuFragment()
             Screens.ADD_TRANSACTION_SCREEN -> AddTransactionFragment()
             Screens.ADD_WALLET_SCREEN -> AddWalletFragment()
+            Screens.ABOUT_SCREEN -> AboutFragment()
+            Screens.SETTINGS_SCREEN -> SettingsFragment()
             else -> null
         }
 
@@ -136,8 +94,12 @@ class MainActivity : BaseActivity(), InternetConnectivityListener {
         if (supportFragmentManager.fragments.isNotEmpty()) {
             Timber.d((supportFragmentManager.fragments.first() as BaseFragment).TAG)
             when ((supportFragmentManager.fragments.first() as BaseFragment).TAG) {
-                Screens.BALANCE_SCREEN -> toolbar.setNavigationIcon(R.drawable.ic_hamburger)
-                else -> toolbar.setNavigationIcon(R.drawable.ic_exit)
+                Screens.BALANCE_SCREEN -> {
+                    toolbar.setNavigationIcon(R.drawable.ic_hamburger)
+                }
+                else -> {
+                    toolbar.setNavigationIcon(R.drawable.ic_exit)
+                }
             }
         } else {
             toolbar.setNavigationIcon(R.drawable.ic_hamburger)

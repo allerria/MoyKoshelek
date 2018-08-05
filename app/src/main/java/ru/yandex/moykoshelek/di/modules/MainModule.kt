@@ -12,22 +12,22 @@ import ru.yandex.moykoshelek.ui.wallet.AddWalletFragment
 @Module
 abstract class MainModule {
 
-    @ContributesAndroidInjector(modules = [BalanceModule::class])
+    @ContributesAndroidInjector
     abstract fun bindBalanceFragment(): BalanceFragment
 
     @ContributesAndroidInjector()
     abstract fun bindMenuFragment(): MenuFragment
 
-    @ContributesAndroidInjector(modules = [AddWalletModule::class])
+    @ContributesAndroidInjector
     abstract fun bindAddWalletFragment(): AddWalletFragment
 
-    @ContributesAndroidInjector(modules = [AddTransactionModule::class])
+    @ContributesAndroidInjector
     abstract fun bindAddTransactionFragment(): AddTransactionFragment
 
     @ContributesAndroidInjector
     abstract fun bindAboutFragment(): AboutFragment
 
-    @ContributesAndroidInjector(modules = [SettingsModule::class])
+    @ContributesAndroidInjector
     abstract fun bindSettingsFragment(): SettingsFragment
 
 }
