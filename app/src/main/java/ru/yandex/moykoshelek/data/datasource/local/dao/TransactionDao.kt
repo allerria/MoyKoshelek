@@ -14,6 +14,9 @@ interface TransactionDao {
     @Query("SELECT * from transactions")
     fun getAll(): LiveData<List<Transaction>>
 
+    @Query("SELECT * from transactions where wallet_id = :walletId")
+    fun getAllByWalletId(walletId: Int): LiveData<List<Transaction>>
+
     @Query("SELECT * from transactions t1 where id = (select id from transactions where period_transaction_id = t1.period_transaction_id order by created_at desc limit 1)")
     fun getAllLastPeriodTransaction(): List<Transaction>
 
@@ -22,6 +25,8 @@ interface TransactionDao {
 }
 
 suspend fun TransactionDao.getTransactions(): LiveData<List<Transaction>> = withContext(DefaultDispatcher) { getAll() }
+
+suspend fun TransactionDao.getTransactionsByWalletId(walletId: Int): LiveData<List<Transaction>> = withContext(DefaultDispatcher) { getAllByWalletId(walletId) }
 
 suspend fun TransactionDao.getLastPeriodTransactions(): List<Transaction> = withContext(DefaultDispatcher) { getAllLastPeriodTransaction() }
 

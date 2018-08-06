@@ -55,7 +55,7 @@ class MainActivity : BaseActivity() {
             R.id.action_add -> showSelectAddDialog()
             android.R.id.home -> {
                 if ((supportFragmentManager.fragments.first() as BaseFragment).TAG != Screens.BALANCE_SCREEN) {
-                    router.backTo(Screens.BALANCE_SCREEN)
+                    router.exit()
                 } else {
                     router.navigateTo(Screens.MENU_SCREEN)
                 }
@@ -81,7 +81,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun showSelectAddDialog() {
-        val array = arrayOf("Счет", "Доход/Расход")
+        val array = arrayOf(getString(R.string.wallet), getString(R.string.income_expense))
         selector("Выберите что добавить", array.toList()) { _, i ->
             when (i) {
                 0 -> router.navigateTo(Screens.ADD_WALLET_SCREEN)

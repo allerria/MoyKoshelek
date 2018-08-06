@@ -18,6 +18,14 @@ class TransactionsRepository @Inject constructor(private val transactionDao: Tra
         return result
     }
 
+    fun getTransactionsByWalletId(walletId: Int): LiveData<List<Transaction>> {
+        lateinit var result: LiveData<List<Transaction>>
+        runBlocking {
+            result = transactionDao.getTransactionsByWalletId(walletId)
+        }
+        return result
+    }
+
     fun addTransaction(transaction: Transaction) {
         launch {
             transactionDao.insert(transaction)

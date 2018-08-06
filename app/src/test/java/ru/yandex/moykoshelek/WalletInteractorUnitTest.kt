@@ -1,2 +1,0 @@
-package ru.yandex.moykoshelek
-

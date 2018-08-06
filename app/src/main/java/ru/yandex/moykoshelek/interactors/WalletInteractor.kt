@@ -27,9 +27,7 @@ class WalletInteractor @Inject constructor(
 
     fun getTransactions() = transactionsRepository.getTransactions()
 
-    fun getTransactions(walletId: Int) =
-            Transformations.map(transactionsRepository.getTransactions())
-            { transactions -> transactions.filter { walletId == it.walletId }.sortedByDescending { it.date } }
+    fun getTransactions(walletId: Int) = transactionsRepository.getTransactionsByWalletId(walletId)
 
     fun getCurrencyRate() = currencyRateRepository.getCurrencyRate()
 
