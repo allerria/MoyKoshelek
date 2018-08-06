@@ -11,22 +11,18 @@ import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 @Dao
 interface TransactionDao {
 
-    @Query("SELECT * from transactions")
+    @Query("SELECT * from transactions order by created_at desc")
     fun getAll(): LiveData<List<Transaction>>
 
-    @Query("SELECT * from transactions where wallet_id = :walletId")
+    @Query("SELECT * from transactions where wallet_id = :walletId order by created_at desc")
     fun getAllByWalletId(walletId: Int): LiveData<List<Transaction>>
-
-    @Query("SELECT * from transactions t1 where id = (select id from transactions where period_transaction_id = t1.period_transaction_id order by created_at desc limit 1)")
-    fun getAllLastPeriodTransaction(): List<Transaction>
 
     @Insert()
     fun insert(transaction: Transaction)
+
+    @Insert()
+    fun insert(transactions: List<Transaction>)
 }
 
-suspend fun TransactionDao.getTransactions(): LiveData<List<Transaction>> = withContext(DefaultDispatcher) { getAll() }
-
-suspend fun TransactionDao.getTransactionsByWalletId(walletId: Int): LiveData<List<Transaction>> = withContext(DefaultDispatcher) { getAllByWalletId(walletId) }
-
-suspend fun TransactionDao.getLastPeriodTransactions(): List<Transaction> = withContext(DefaultDispatcher) { getAllLastPeriodTransaction() }
-
+//suspend fun TransactionDao.getTransactions(): LiveData<List<Transaction>> = withContext(DefaultDispatcher) { getAll() }
+//suspend fun TransactionDao.getTransactionsByWalletId(walletId: Int): LiveData<List<Transaction>> = withContext(DefaultDispatcher) { getAllByWalletId(walletId) }

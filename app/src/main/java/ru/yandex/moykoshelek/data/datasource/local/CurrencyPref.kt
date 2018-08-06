@@ -7,7 +7,7 @@ import android.content.Context
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import javax.inject.Inject
 
-class CurrencyPref @Inject constructor(app: Context){
+class CurrencyPref (app: Context){
 
     private var prefs = getDefaultSharedPreferences(app)
     private val currConvert = "currentConvert"

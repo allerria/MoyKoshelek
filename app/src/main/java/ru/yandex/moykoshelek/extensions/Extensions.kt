@@ -16,6 +16,12 @@ fun getCurrentDateTime(): Date {
     return Calendar.getInstance().time
 }
 
+fun getCurrentDateTimeBeforeDays(days: Int): Date {
+    val cal = Calendar.getInstance()
+    cal.add(Calendar.DAY_OF_MONTH, -days)
+    return cal.time
+}
+
 fun Activity.hideKeyboard() {
     if (window.currentFocus != null) {
         val inputManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

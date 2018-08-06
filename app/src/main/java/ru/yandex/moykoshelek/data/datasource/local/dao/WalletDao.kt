@@ -23,4 +23,4 @@ interface WalletDao {
     fun executeTransaction(walletId: Int, transactionCost: Double)
 }
 
-suspend fun WalletDao.getTransactions(): LiveData<List<Wallet>> = withContext(DefaultDispatcher) { getAll() }
+//suspend fun WalletDao.getTransactions(): LiveData<List<Wallet>> = withContext(DefaultDispatcher) { getAll() }

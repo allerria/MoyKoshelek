@@ -159,8 +159,6 @@
         android:layout_width="match_parent"
         android:layout_height="38dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginLeft="48dp"
-        android:layout_marginRight="16dp"
         android:layout_marginStart="48dp"
         android:layout_marginTop="22dp"
         android:background="#e8e8e8"
@@ -186,8 +184,6 @@
         android:layout_width="match_parent"
         android:layout_height="38dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginLeft="48dp"
-        android:layout_marginRight="16dp"
         android:layout_marginStart="48dp"
         android:layout_marginTop="22dp"
         android:background="#e8e8e8"
@@ -204,7 +200,6 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/save_btn_background"
         android:text="@string/add"
-        android:textColor="@color/white"
         app:layout_constraintRight_toRightOf="@id/wallet_currency_spinner"
         app:layout_constraintTop_toBottomOf="@id/wallet_currency_spinner" />
 </android.support.constraint.ConstraintLayout>
