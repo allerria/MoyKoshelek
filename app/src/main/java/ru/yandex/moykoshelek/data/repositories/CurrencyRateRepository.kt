@@ -6,12 +6,12 @@ import ru.yandex.moykoshelek.data.datasource.local.CurrencyPref
 import ru.yandex.moykoshelek.data.datasource.remote.CurrencyRateRemote
 import javax.inject.Inject
 
-class CurrencyRateRepository(private val currencyPref: CurrencyPref) {
+class CurrencyRateRepository(private val currencyPref: CurrencyPref, private val currencyRateRemote: CurrencyRateRemote) {
 
     fun getCurrencyRate(): LiveData<Float> = currencyPref.getCurrentConvert()
 
     fun updateCurrencyRate() {
-        val currencyRate = CurrencyRateRemote()
+        val currencyRate = currencyRateRemote.getCurrencyRate()
         if (currencyRate != null) {
             currencyPref.setCurrentConvert(currencyRate)
         }

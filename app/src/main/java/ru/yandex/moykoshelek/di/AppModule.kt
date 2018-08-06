@@ -7,6 +7,7 @@ import ru.yandex.moykoshelek.data.datasource.local.CurrencyPref
 import ru.yandex.moykoshelek.data.datasource.local.dao.PeriodTransactionDao
 import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDao
 import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDao
+import ru.yandex.moykoshelek.data.datasource.remote.CurrencyRateRemote
 import ru.yandex.moykoshelek.data.repositories.CurrencyRateRepository
 import ru.yandex.moykoshelek.data.repositories.TransactionsRepository
 import ru.yandex.moykoshelek.data.repositories.WalletRepository
@@ -28,10 +29,14 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideCurrencyRateRepository(currencyPref: CurrencyPref): CurrencyRateRepository = CurrencyRateRepository(currencyPref)
+    fun provideCurrencyRateRepository(currencyPref: CurrencyPref, currencyRateRemote: CurrencyRateRemote): CurrencyRateRepository = CurrencyRateRepository(currencyPref, currencyRateRemote)
 
     @Provides
     @Singleton
     fun provideCurrencyPref(app: Application): CurrencyPref = CurrencyPref(app)
+
+    @Provides
+    @Singleton
+    fun provideCurrencyRateRemote(): CurrencyRateRemote = CurrencyRateRemote()
 
 }

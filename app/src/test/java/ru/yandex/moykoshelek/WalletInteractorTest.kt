@@ -34,8 +34,8 @@ class WalletInteractorTest {
     private lateinit var walletInteractor: WalletInteractor
 
     val walletStub = Wallet(1, WalletTypes.BANK_ACCOUNT, "testwallet", 1000.0, CurrencyTypes.RUB, "2", "22/12")
-    val transactionStub = Transaction(1, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
     val walletListStub = listOf(walletStub, walletStub)
+    val transactionStub = Transaction(1, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
     val transactionsListStub = listOf(transactionStub, transactionStub)
     val currencyRateStub = 63.0f
     val periodTransactionStub = PeriodTransaction(1, getCurrentDateTimeBeforeDays(14), 7, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
@@ -45,7 +45,6 @@ class WalletInteractorTest {
     @Rule
     @JvmField
     val instantTaskExecutorRule = InstantTaskExecutorRule()
-
 
     @Before
     fun setUp() {
