@@ -47,7 +47,7 @@
     <string name="salary">Salary</string>
     <string name="gift">Gift</string>
     <string name="periodic_transaction">Периодичная транзакция</string>
-    <string name="period">Период</string>
+    <string name="period">Период в днях</string>
     <string name="income_expense">Доход/Расход</string>
     <string name="wallet">Счет</string>
 
