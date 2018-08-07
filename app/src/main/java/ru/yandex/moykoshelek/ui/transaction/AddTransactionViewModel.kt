@@ -1,15 +1,11 @@
 package ru.yandex.moykoshelek.ui.transaction
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
-import ru.yandex.moykoshelek.data.entities.TransactionTypes
-import ru.yandex.moykoshelek.extensions.getCurrentDateTime
 import ru.yandex.moykoshelek.interactors.WalletInteractor
-import java.util.*
 import javax.inject.Inject
 
 class AddTransactionViewModel @Inject constructor(private val walletInteractor: WalletInteractor): ViewModel() {
@@ -24,8 +20,13 @@ class AddTransactionViewModel @Inject constructor(private val walletInteractor: 
         val periodTransaction = PeriodTransaction()
         periodTransaction.time = transaction.date
         periodTransaction.period = period
-        val periodTransactionId = walletInteractor.addPeriodTransactionAndGetId(periodTransaction)
-        transaction.periodTransactionId = periodTransactionId.toInt()
+        periodTransaction.walletId = transaction.walletId
+        periodTransaction.category = transaction.category
+        periodTransaction.cost = transaction.cost
+        periodTransaction.currency = transaction.currency
+        periodTransaction.type = transaction.type
+        periodTransaction.placeholder = transaction.placeholder
+        walletInteractor.addPeriodTransaction(periodTransaction)
         walletInteractor.executeTransaction(transaction)
     }
 

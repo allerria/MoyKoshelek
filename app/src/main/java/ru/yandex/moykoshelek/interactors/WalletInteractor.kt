@@ -1,7 +1,7 @@
 package ru.yandex.moykoshelek.interactors
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Transformations
+import android.arch.lifecycle.MutableLiveData
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
@@ -12,8 +12,6 @@ import ru.yandex.moykoshelek.data.repositories.CurrencyRateRepository
 import ru.yandex.moykoshelek.data.repositories.TransactionsRepository
 import ru.yandex.moykoshelek.data.repositories.WalletRepository
 import ru.yandex.moykoshelek.extensions.getCurrentDateTime
-import ru.yandex.moykoshelek.extensions.toString
-import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
@@ -23,63 +21,130 @@ class WalletInteractor @Inject constructor(
         private val currencyRateRepository: CurrencyRateRepository
 ) {
 
-    fun getWallets() = walletRepository.getWallets()
+    fun getWallets(): LiveData<List<Wallet>> {
+        lateinit var result: LiveData<List<Wallet>>
+        runBlocking {
+            result = walletRepository.getWallets()
+        }
+        return result
+    }
 
-    fun getTransactions() = transactionsRepository.getTransactions()
+    fun getTransactions(): LiveData<List<Transaction>> {
+        lateinit var result: LiveData<List<Transaction>>
+        runBlocking {
+            result = transactionsRepository.getTransactions()
+        }
+        return result
+    }
 
-    fun getTransactions(walletId: Int) = transactionsRepository.getTransactionsByWalletId(walletId)
+    fun getTransactions(walletId: Int): LiveData<List<Transaction>> {
+        lateinit var result: LiveData<List<Transaction>>
+        runBlocking {
+            result = transactionsRepository.getTransactionsByWalletId(walletId)
+        }
+        return result
+    }
 
-    fun getCurrencyRate() = currencyRateRepository.getCurrencyRate()
+    fun getCurrencyRate(): LiveData<Float> {
+        lateinit var result: LiveData<Float>
+        runBlocking {
+            result = currencyRateRepository.getCurrencyRate()
+        }
+        return result
+    }
 
     fun addWallet(wallet: Wallet) {
-        walletRepository.addWallet(wallet)
+        launch {
+            walletRepository.addWallet(wallet)
+        }
     }
 
     fun addTransaction(transaction: Transaction) {
-        transactionsRepository.addTransaction(transaction)
+        launch {
+            transactionsRepository.addTransaction(transaction)
+        }
     }
 
     fun executeTransaction(transaction: Transaction) {
-        transactionsRepository.addTransaction(transaction)
-        var transactionCost = transaction.cost
-        if (transaction.type == TransactionTypes.OUT) {
-            transactionCost *= -1
+        launch {
+            transactionsRepository.addTransaction(transaction)
+            var transactionCost = transaction.cost
+            if (transaction.type == TransactionTypes.OUT) {
+                transactionCost *= -1
+            }
+            walletRepository.updateWalletAfterTransaction(transaction.walletId, transactionCost)
         }
-        walletRepository.updateWalletAfterTransaction(transaction.walletId, transactionCost)
+    }
+
+    fun executeTransactions(transactions: List<Transaction>) {
+        launch {
+            if (transactions.isNotEmpty()) {
+                transactionsRepository.addTransactions(transactions)
+                walletRepository.updateWalletAfterTransaction(transactions.first().walletId, transactionsSum(transactions))
+            }
+        }
+    }
+
+    fun transactionsSum(transactions: List<Transaction>): Double {
+        var sum = 0.0
+        runBlocking {
+            transactions.forEach {
+                sum += if (it.type == TransactionTypes.IN) it.cost else -it.cost
+            }
+        }
+        return sum
     }
 
     fun updateWallet(wallet: Wallet) {
-        walletRepository.updateWallet(wallet)
+        launch {
+            walletRepository.updateWallet(wallet)
+        }
     }
 
     fun updateCurrencyRate() {
-        currencyRateRepository.updateCurrencyRate()
+        launch {
+            currencyRateRepository.updateCurrencyRate()
+        }
     }
 
-    fun addPeriodTransactionAndGetId(periodTransaction: PeriodTransaction) = transactionsRepository.addPeriodTransactions(periodTransaction)
+    fun addPeriodTransaction(periodTransaction: PeriodTransaction) {
+        launch {
+            transactionsRepository.addPeriodTransaction(periodTransaction)
+        }
+    }
 
-    fun getPeriodTransaction(periodTransactionId: Int) = transactionsRepository.getPeriodTransaction(periodTransactionId)
+    fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction {
+        lateinit var result: PeriodTransaction
+        runBlocking {
+            result = transactionsRepository.getPeriodTransaction(periodTransactionId)
+        }
+        return result
+    }
 
-    fun getLastPeriodTransactions(): List<Transaction> = transactionsRepository.getLastPeriodTransactions()
-
-    fun executePeriodTransactions() {
-        transactionsRepository.getLastPeriodTransactions().forEach {
-            if (it.periodTransactionId != null) {
-                val periodTransaction = transactionsRepository.getPeriodTransaction(it.periodTransactionId!!)
+    fun getDeferredTransactions(periodTransactions: List<PeriodTransaction>): List<Transaction> {
+        val toExecuteTransactions = mutableListOf<Transaction>()
+        runBlocking {
+            periodTransactions.forEach {
                 val calendarNow = Calendar.getInstance()
                 val calendarLast = Calendar.getInstance()
                 calendarNow.time = getCurrentDateTime()
-                calendarLast.time = it.date
-                calendarLast.add(Calendar.DAY_OF_MONTH, periodTransaction.period)
-                it.id = 0
+                calendarLast.time = it.time
+                calendarLast.add(Calendar.DAY_OF_MONTH, it.period)
                 while (calendarLast.before(calendarNow)) {
-                    val copy = it.copy()
-                    copy.date = calendarLast.time
-                    executeTransaction(copy)
-                    Timber.d(calendarLast.time.toString())
-                    calendarLast.add(Calendar.DAY_OF_MONTH, periodTransaction.period)
+                    val transaction = Transaction(0, calendarLast.time, it.cost, it.currency, it.placeholder, it.type, it.walletId, it.category)
+                    toExecuteTransactions.add(transaction)
+                    calendarLast.add(Calendar.DAY_OF_MONTH, it.period)
                 }
             }
+        }
+        return toExecuteTransactions
+    }
+
+    fun executePeriodTransactions() {
+        launch {
+            val periodTransactions = transactionsRepository.getPeriodTransactions()
+            val deferredTransactions = getDeferredTransactions(periodTransactions)
+            executeTransactions(deferredTransactions)
         }
     }
 }

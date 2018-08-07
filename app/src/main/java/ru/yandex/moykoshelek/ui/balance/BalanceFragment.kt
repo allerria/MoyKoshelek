@@ -14,6 +14,7 @@ import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
+import ru.yandex.moykoshelek.extensions.currencySign
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
 import timber.log.Timber
@@ -58,7 +59,7 @@ class BalanceFragment : BaseFragment() {
                     val view = cards_viewpager.findViewWithTag<View>(it.id)
                     if (view != null) {
                         with(view) {
-                            var currency = if (CurrencyTypes.USD == it.currency) "$ " else "\u20BD "
+                            var currency = currencySign(it.currency)
                             currency += String.format("%.2f", it.balance)
                             card_balance.text = currency
                         }
@@ -78,28 +79,31 @@ class BalanceFragment : BaseFragment() {
 
     private fun setupViewPager() {
         tab_dots.setupWithViewPager(cards_viewpager, true)
-        cards_viewpager.adapter = null
         cardAdapter = CardsPagerAdapter()
-        cards_viewpager.adapter = cardAdapter
-        cards_viewpager.offscreenPageLimit = 3
-        cards_viewpager.clipToPadding = false
-        cards_viewpager.setPadding(96, 0, 96, 0)
-        cards_viewpager.pageMargin = 48
-        cards_viewpager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(p0: Int) {}
-            override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {
-                viewModel.getTransactions(viewModel.getWalletId(p0)).removeObservers(this@BalanceFragment)
-            }
+        with(cards_viewpager) {
+            adapter = cardAdapter
+            clipToPadding = false
+            setPadding(resources.getDimension(R.dimen.dimen_96).toInt(), 0, resources.getDimension(R.dimen.dimen_96).toInt(), 0)
+            pageMargin = resources.getDimension(R.dimen.dimen_48).toInt()
+            addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+                override fun onPageScrollStateChanged(p0: Int) {}
 
-            override fun onPageSelected(p0: Int) {
-                observeTransactions(p0)
-            }
-        })
+                override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {
+                    viewModel.getTransactions(viewModel.getWalletId(p0)).removeObservers(this@BalanceFragment)
+                }
+
+                override fun onPageSelected(p0: Int) {
+                    observeTransactions(p0)
+                }
+            })
+        }
     }
 
     private fun observeTransactions(walletPosition: Int) {
         viewModel.getTransactions(viewModel.getWalletId(walletPosition)).observe(this@BalanceFragment, Observer { it ->
-            transactionAdapter.setData(it!!)
+            if (it != null) {
+                transactionAdapter.setData(it)
+            }
         })
 
     }

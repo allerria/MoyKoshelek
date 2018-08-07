@@ -8,59 +8,26 @@ import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import javax.inject.Inject
 
-class TransactionsRepository @Inject constructor(private val transactionDao: TransactionDao, private val periodTransactionDao: PeriodTransactionDao) {
+class TransactionsRepository(private val transactionDao: TransactionDao, private val periodTransactionDao: PeriodTransactionDao) {
 
-    fun getTransactions(): LiveData<List<Transaction>> {
-        lateinit var result: LiveData<List<Transaction>>
-        runBlocking {
-            result = transactionDao.getTransactions()
-        }
-        return result
-    }
+    fun getTransactions(): LiveData<List<Transaction>> = transactionDao.getAll()
 
-    fun getTransactionsByWalletId(walletId: Int): LiveData<List<Transaction>> {
-        lateinit var result: LiveData<List<Transaction>>
-        runBlocking {
-            result = transactionDao.getTransactionsByWalletId(walletId)
-        }
-        return result
-    }
+    fun getTransactionsByWalletId(walletId: Int): LiveData<List<Transaction>> = transactionDao.getAllByWalletId(walletId)
 
     fun addTransaction(transaction: Transaction) {
-        launch {
-            transactionDao.insert(transaction)
-        }
+        transactionDao.insert(transaction)
     }
 
-    fun getPeriodTransactions(): List<PeriodTransaction> {
-        lateinit var result: List<PeriodTransaction>
-        runBlocking {
-            result = periodTransactionDao.getPeriodTransactions()
-        }
-        return result
+    fun addTransactions(transactions: List<Transaction>) {
+        transactionDao.insert(transactions)
     }
 
-    fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction {
-        lateinit var result: PeriodTransaction
-        runBlocking {
-            result = periodTransactionDao.getTransaction(periodTransactionId)
-        }
-        return result
+    fun getPeriodTransactions(): List<PeriodTransaction> = periodTransactionDao.getAll()
+
+    fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction = periodTransactionDao.getPeriodTransaction(periodTransactionId)
+
+    fun addPeriodTransaction(periodTransaction: PeriodTransaction) {
+        periodTransactionDao.insert(periodTransaction)
     }
 
-    fun getLastPeriodTransactions(): List<Transaction> {
-        lateinit var result: List<Transaction>
-        runBlocking {
-            result = transactionDao.getLastPeriodTransactions()
-        }
-        return result
-    }
-
-    fun addPeriodTransactions(periodTransaction: PeriodTransaction): Long {
-        var result = 0L
-        runBlocking {
-            result = periodTransactionDao.insertAndGetId(periodTransaction)
-        }
-        return result
-    }
 }

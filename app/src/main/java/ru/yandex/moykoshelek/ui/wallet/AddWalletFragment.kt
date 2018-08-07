@@ -44,87 +44,73 @@ class AddWalletFragment : BaseFragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
 
             override fun onItemSelected(parent: AdapterView<*>?, v: View?, position: Int, id: Long) {
-                hideAllItems()
-                when (position) {
-                    WalletTypes.BANK_ACCOUNT -> showBankAccountFields()
-                    WalletTypes.CASH_MONEY -> showCashMoneyFields()
-                    WalletTypes.CREDIT_CARD -> showCreditCardFields()
-                    WalletTypes.E_WALLET -> showElectronWalletFields()
-                }
+                showWalletFields(position)
                 icon_currency.visibility = View.VISIBLE
                 wallet_currency_spinner.visibility = View.VISIBLE
                 submit_button.visibility = View.VISIBLE
             }
         }
-        view.findViewById<Button>(R.id.submit_button).setOnClickListener { createWallet() }
+        submit_button.setOnClickListener { createWallet() }
     }
 
     private fun createWallet() {
         create_wallet_layout.forEachChild {
             if (it.visibility == View.VISIBLE && it is EditText && it.text.isEmpty()) {
-                it.error = "Пожалуйста, запольните полье"
+                it.error = getString(R.string.fill_field)
                 return
             }
         }
         val wallet = Wallet()
-        wallet.type = wallet_type_spinner.selectedItemPosition
-        wallet.currency = wallet_currency_spinner.selectedItemPosition
-        wallet.date = wallet_card_date.text.toString()
-        wallet.name = wallet_name.text.toString()
-        wallet.number = when (wallet.type) {
-            WalletTypes.E_WALLET -> wallet_number.text.toString()
-            WalletTypes.CREDIT_CARD -> wallet_card_number.text.toString()
-            WalletTypes.BANK_ACCOUNT -> wallet_account_number.text.toString()
-            else -> ""
+        with(wallet) {
+            type = wallet_type_spinner.selectedItemPosition
+            currency = wallet_currency_spinner.selectedItemPosition
+            date = wallet_card_date.text.toString()
+            name = wallet_name.text.toString()
+            number = when (wallet.type) {
+                WalletTypes.E_WALLET -> wallet_number.text.toString()
+                WalletTypes.CREDIT_CARD -> wallet_card_number.text.toString()
+                WalletTypes.BANK_ACCOUNT -> wallet_account_number.text.toString()
+                else -> ""
+            }
+            viewModel.addWallet(this)
         }
-        viewModel.addWallet(wallet)
         router.backTo(Screens.BALANCE_SCREEN)
     }
 
-    private fun showElectronWalletFields() {
-        icon_name.visibility = View.VISIBLE
-        wallet_name.visibility = View.VISIBLE
-        wallet_name.hint = "Название кошелька"
-
-        icon_wallet.visibility = View.VISIBLE
-        wallet_number.visibility = View.VISIBLE
-        wallet_number.hint = "Номер кошелька"
-    }
-
-    private fun showCreditCardFields() {
-        icon_name.visibility = View.VISIBLE
-        wallet_name.visibility = View.VISIBLE
-        wallet_name.hint = "Имя владельца"
-
-        icon_card.visibility = View.VISIBLE
-        wallet_card_number.visibility = View.VISIBLE
-        wallet_card_number.hint = "Номер карты"
-
-        icon_date.visibility = View.VISIBLE
-        wallet_card_date.visibility = View.VISIBLE
-        wallet_card_date.hint = "Срок действия карты"
-    }
-
-    private fun showCashMoneyFields() {
-        icon_name.visibility = View.VISIBLE
-        wallet_name.visibility = View.VISIBLE
-        wallet_name.hint = "Название кошелька"
-    }
-
-    private fun showBankAccountFields() {
-        icon_name.visibility = View.VISIBLE
-        wallet_name.visibility = View.VISIBLE
-        wallet_name.hint = "Название банка или счета"
-
-        icon_number.visibility = View.VISIBLE
-        wallet_account_number.visibility = View.VISIBLE
-        wallet_account_number.hint = "Номер счета"
-    }
-
-    private fun hideAllItems() {
+    private fun showWalletFields(position: Int) {
         create_wallet_layout.forEachChildWithIndex { i, it ->
             if (i > 1) {
                 it.visibility = View.GONE
+            }
+        }
+
+        icon_name.visibility = View.VISIBLE
+        wallet_name.visibility = View.VISIBLE
+
+        when (position) {
+            0 -> {
+                wallet_name.hint = getString(R.string.wallet_name)
+                icon_wallet.visibility = View.VISIBLE
+                wallet_number.visibility = View.VISIBLE
+                wallet_number.hint = getString(R.string.wallet_number)
+            }
+            1 -> {
+                wallet_name.hint = getString(R.string.wallet_owner)
+                icon_card.visibility = View.VISIBLE
+                wallet_card_number.visibility = View.VISIBLE
+                wallet_card_number.hint = getString(R.string.card_number)
+                icon_date.visibility = View.VISIBLE
+                wallet_card_date.visibility = View.VISIBLE
+                wallet_card_date.hint = getString(R.string.card_expires)
+            }
+            2 -> {
+                wallet_name.hint = getString(R.string.wallet_name)
+            }
+            3 -> {
+                wallet_name.hint = getString(R.string.account_name)
+                icon_number.visibility = View.VISIBLE
+                wallet_account_number.visibility = View.VISIBLE
+                wallet_account_number.hint = getString(R.string.account_number)
             }
         }
     }

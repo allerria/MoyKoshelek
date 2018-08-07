@@ -12,7 +12,7 @@ import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 @Dao
 interface PeriodTransactionDao {
 
-    @Query("SELECT * from period_transactions")
+    @Query("select * from period_transactions")
     fun getAll(): List<PeriodTransaction>
 
 
@@ -20,9 +20,8 @@ interface PeriodTransactionDao {
     fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction
 
     @Insert()
-    fun insert(periodTransaction: PeriodTransaction): Long
+    fun insert(periodTransaction: PeriodTransaction)
 }
 
-suspend fun PeriodTransactionDao.getPeriodTransactions(): List<PeriodTransaction> = withContext(DefaultDispatcher) { getAll() }
-suspend fun PeriodTransactionDao.insertAndGetId(periodTransaction: PeriodTransaction) = withContext(DefaultDispatcher) { insert(periodTransaction) }
-suspend fun PeriodTransactionDao.getTransaction(periodTransactionId: Int): PeriodTransaction = withContext(DefaultDispatcher) { getPeriodTransaction(periodTransactionId) }
+//suspend fun PeriodTransactionDao.getPeriodTransactions(): List<PeriodTransaction> = withContext(DefaultDispatcher) { getAll() }
+//suspend fun PeriodTransactionDao.getTransaction(periodTransactionId: Int): PeriodTransaction = withContext(DefaultDispatcher) { getPeriodTransaction(periodTransactionId) }

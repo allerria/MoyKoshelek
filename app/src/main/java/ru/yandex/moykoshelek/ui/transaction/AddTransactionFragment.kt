@@ -17,7 +17,6 @@ import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.extensions.getCurrentDateTime
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
-import java.util.*
 import javax.inject.Inject
 
 
@@ -66,23 +65,25 @@ class AddTransactionFragment : BaseFragment() {
     private fun createTransaction() {
         add_transaction_layout.forEachChild {
             if (it.visibility == View.VISIBLE && it is EditText && it.text.isEmpty()) {
-                it.error = "Пожалуйста заполните поле"
+                it.error = getString(R.string.fill_field)
                 return
             }
         }
         val transaction = Transaction()
-        transaction.cost = transaction_amount.text.toString().toDouble()
-        transaction.placeholder = "Moscow, Russia"
-        transaction.type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
-        val wallet = viewModel.getWallet(cards_viewpager.currentItem)
-        transaction.currency = wallet.currency
-        transaction.walletId = wallet.id
-        transaction.date = getCurrentDateTime()
-        transaction.category = transaction_category.selectedItem.toString()
-        if (period_check_box.isChecked) {
-            viewModel.executePeriodTransaction(transaction, period_edit_text.text.toString().toInt())
-        } else {
-            viewModel.executeTransaction(transaction)
+        with(transaction) {
+            cost = transaction_amount.text.toString().toDouble()
+            placeholder = getString(R.string.place_example)
+            type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
+            val wallet = viewModel.getWallet(cards_viewpager.currentItem)
+            currency = wallet.currency
+            walletId = wallet.id
+            date = getCurrentDateTime()
+            category = transaction_category.selectedItem.toString()
+            if (period_check_box.isChecked) {
+                viewModel.executePeriodTransaction(this, period_edit_text.text.toString().toInt())
+            } else {
+                viewModel.executeTransaction(this)
+            }
         }
         router.backTo(Screens.BALANCE_SCREEN)
     }
@@ -90,13 +91,12 @@ class AddTransactionFragment : BaseFragment() {
     private fun setupViewPager() {
         tab_dots.setupWithViewPager(cards_viewpager, true)
         cardAdapter = CardsPagerAdapter()
-        cards_viewpager.adapter = cardAdapter
-        cards_viewpager.offscreenPageLimit = 3
-        cards_viewpager.clipToPadding = false
-        cards_viewpager.setPadding(96, 0, 96, 0)
-        cards_viewpager.pageMargin = 48
+        with(cards_viewpager) {
+            clipToPadding = false
+            setPadding(resources.getDimension(R.dimen.dimen_96).toInt(), 0, resources.getDimension(R.dimen.dimen_96).toInt(), 0)
+            pageMargin = resources.getDimension(R.dimen.dimen_48).toInt()
+        }
     }
-
 
     private fun initObservers() {
 

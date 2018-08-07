@@ -10,7 +10,7 @@ import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 
-@Database(entities = [Transaction::class, Wallet::class, PeriodTransaction::class], version = 4, exportSchema = false)
+@Database(entities = [Transaction::class, Wallet::class, PeriodTransaction::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 

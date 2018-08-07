@@ -7,22 +7,23 @@ import android.content.Context
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import javax.inject.Inject
 
-class CurrencyPref @Inject constructor(app: Context){
+class CurrencyPref(app: Context) {
+    companion object {
+        private const val defaultConvert = 62.0F
+        private const val currConvert = "currentConvert"
+    }
 
     private var prefs = getDefaultSharedPreferences(app)
-    private val currConvert = "currentConvert"
-    private val defaultConvert = 62.0F
 
     fun getCurrentConvert(): LiveData<Float> {
         val result = MutableLiveData<Float>()
-        result.value = this.prefs.getFloat(this.currConvert, this.defaultConvert)
+        result.value = this.prefs.getFloat(currConvert, defaultConvert)
         return result
     }
 
-
     fun setCurrentConvert(currentConvert: Float) {
         val editor = this.prefs.edit()
-        editor.putFloat(this.currConvert, currentConvert)
+        editor.putFloat(currConvert, currentConvert)
         editor.apply()
     }
 }

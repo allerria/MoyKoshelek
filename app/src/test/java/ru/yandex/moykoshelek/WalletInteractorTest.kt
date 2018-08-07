@@ -3,6 +3,7 @@ package ru.yandex.moykoshelek
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.arch.lifecycle.MutableLiveData
+import kotlinx.coroutines.experimental.launch
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -21,7 +22,9 @@ import ru.yandex.moykoshelek.data.repositories.CurrencyRateRepository
 import ru.yandex.moykoshelek.data.repositories.TransactionsRepository
 import ru.yandex.moykoshelek.data.repositories.WalletRepository
 import ru.yandex.moykoshelek.extensions.getCurrentDateTime
+import ru.yandex.moykoshelek.extensions.getCurrentDateTimeBeforeDays
 import ru.yandex.moykoshelek.interactors.WalletInteractor
+import java.util.*
 
 @RunWith(JUnit4::class)
 class WalletInteractorTest {
@@ -32,19 +35,17 @@ class WalletInteractorTest {
     private lateinit var walletInteractor: WalletInteractor
 
     val walletStub = Wallet(1, WalletTypes.BANK_ACCOUNT, "testwallet", 1000.0, CurrencyTypes.RUB, "2", "22/12")
-    val transactionStub = Transaction(1, getCurrentDateTime(), 1.0, null, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
     val walletListStub = listOf(walletStub, walletStub)
+    val transactionStub = Transaction(1, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
     val transactionsListStub = listOf(transactionStub, transactionStub)
     val currencyRateStub = 63.0f
-    val periodTransactionStub = PeriodTransaction(1, getCurrentDateTime(), 7)
-    val lastPeriodTransactionStub = Transaction(1, getCurrentDateTime(), 1.0, 1, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
-    val lastPeriodTransactionStub1 = Transaction(1, getCurrentDateTime(), 1.0, 1, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
-    val lastPeriodTransactionsListStub = listOf(lastPeriodTransactionStub, lastPeriodTransactionStub1)
+    val periodTransactionStub = PeriodTransaction(1, getCurrentDateTimeBeforeDays(14), 7, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
+    val periodTransactionStub1 = PeriodTransaction(2, getCurrentDateTimeBeforeDays(30), 10, 5.0, CurrencyTypes.RUB, "asd", TransactionTypes.OUT, 1, "agagaga")
+    val periodTransactionsListStub = listOf(periodTransactionStub, periodTransactionStub1)
 
     @Rule
     @JvmField
     val instantTaskExecutorRule = InstantTaskExecutorRule()
-
 
     @Before
     fun setUp() {
@@ -62,7 +63,9 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getWallets(), expectedWallets)
 
-        verify(walletRepository).getWallets()
+        launch {
+            verify(walletRepository).getWallets()
+        }
     }
 
     @Test
@@ -73,7 +76,9 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getTransactions(), expectedTransactions)
 
-        verify(transactionsRepository).getTransactions()
+        launch {
+            verify(transactionsRepository).getTransactions()
+        }
     }
 
     @Test
@@ -85,7 +90,9 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getTransactions(walletId), expectedTransaction)
 
-        verify(transactionsRepository).getTransactionsByWalletId(walletId)
+        launch {
+            verify(transactionsRepository).getTransactionsByWalletId(walletId)
+        }
     }
 
     @Test
@@ -96,53 +103,64 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getCurrencyRate(), expectedCurrencyRate)
 
-        verify(currencyRateRepository).getCurrencyRate()
+        launch {
+            verify(currencyRateRepository).getCurrencyRate()
+        }
     }
 
     @Test
     fun addTransaction() {
         assertNotNull(walletInteractor.addTransaction(transactionStub))
 
-        verify(transactionsRepository).addTransaction(transactionStub)
+        launch {
+            verify(transactionsRepository).addTransaction(transactionStub)
+        }
     }
 
     @Test
     fun addWallet() {
         assertNotNull(walletInteractor.addWallet(walletStub))
 
-        verify(walletRepository).addWallet(walletStub)
+        launch {
+            verify(walletRepository).addWallet(walletStub)
+        }
     }
 
     @Test
     fun executeTransaction() {
         assertNotNull(walletInteractor.executeTransaction(transactionStub))
 
-        verify(transactionsRepository).addTransaction(transactionStub)
-        verify(walletRepository).updateWalletAfterTransaction(transactionStub.walletId, if (transactionStub.type == TransactionTypes.IN) transactionStub.cost else -transactionStub.cost)
+        launch {
+            verify(transactionsRepository).addTransaction(transactionStub)
+            verify(walletRepository).updateWalletAfterTransaction(transactionStub.walletId, if (transactionStub.type == TransactionTypes.IN) transactionStub.cost else -transactionStub.cost)
+        }
     }
 
     @Test
     fun updateWallet() {
         assertNotNull(walletInteractor.updateWallet(walletStub))
 
-        verify(walletRepository).updateWallet(walletStub)
+        launch {
+            verify(walletRepository).updateWallet(walletStub)
+        }
     }
 
     @Test
     fun updateCurrencyRate() {
         assertNotNull(walletInteractor.updateCurrencyRate())
 
-        verify(currencyRateRepository).updateCurrencyRate()
+        launch {
+            verify(currencyRateRepository).updateCurrencyRate()
+        }
     }
 
     @Test
     fun addPeriodTransactionAndGetId() {
-        val expectedId = 1L
-        `when`(transactionsRepository.addPeriodTransactions(periodTransactionStub)).thenReturn(expectedId)
+        assertNotNull(walletInteractor.addPeriodTransaction(periodTransactionStub))
 
-        assertEquals(walletInteractor.addPeriodTransactionAndGetId(periodTransactionStub), expectedId)
-
-        verify(transactionsRepository).addPeriodTransactions(periodTransactionStub)
+        launch {
+            verify(transactionsRepository).addPeriodTransaction(periodTransactionStub)
+        }
     }
 
     @Test
@@ -153,17 +171,44 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getPeriodTransaction(periodTransactionId), expectedPeriodTransaction)
 
-        verify(transactionsRepository).getPeriodTransaction(periodTransactionId)
+        launch {
+            verify(transactionsRepository).getPeriodTransaction(periodTransactionId)
+        }
     }
 
     @Test
-    fun getLastPeriodTrnsactions() {
-        val expectedLastPeriodTransactions = lastPeriodTransactionsListStub
-        `when`(transactionsRepository.getLastPeriodTransactions()).thenReturn(lastPeriodTransactionsListStub)
+    fun executePeriodTransactions() {
+        `when`(transactionsRepository.getPeriodTransactions()).thenReturn(periodTransactionsListStub)
+        assertNotNull(walletInteractor.executePeriodTransactions())
+        launch {
+            verify(transactionsRepository).addTransactions(walletInteractor.getDeferredTransactions(periodTransactionsListStub))
+            verify(walletRepository).updateWalletAfterTransaction(transactionsListStub.first().walletId, walletInteractor.transactionsSum(walletInteractor.getDeferredTransactions(periodTransactionsListStub)))
+        }
+    }
 
-        assertEquals(walletInteractor.getLastPeriodTransactions(), expectedLastPeriodTransactions)
+    @Test
+    fun getDeferredTransactions() {
+        val periodTransactions = listOf(periodTransactionStub)
+        val cal = Calendar.getInstance()
+        cal.time = periodTransactionStub.time
+        cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
+        val time1 = cal.time
+        cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
+        val time2 = cal.time
+        val expectedTransactions = listOf(Transaction(0, time1, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"), Transaction(0, time2, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"))
+        assertEquals(walletInteractor.getDeferredTransactions(periodTransactions), expectedTransactions)
+    }
 
-        verify(transactionsRepository).getLastPeriodTransactions()
+    @Test
+    fun transactionsSum() {
+        val transactions = listOf(transactionStub, transactionStub)
+        var expectedSum = 0.0
+        if (transactionStub.type == TransactionTypes.IN) {
+            expectedSum += transactionStub.cost * 2
+        } else {
+            expectedSum -= transactionStub.cost * 2
+        }
+        assertEquals(walletInteractor.transactionsSum(transactions).toFloat(), expectedSum.toFloat())
     }
 
 }
