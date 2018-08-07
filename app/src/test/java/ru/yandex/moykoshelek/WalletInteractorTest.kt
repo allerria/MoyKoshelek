@@ -3,6 +3,7 @@ package ru.yandex.moykoshelek
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.arch.lifecycle.MutableLiveData
+import kotlinx.coroutines.experimental.launch
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -62,7 +63,9 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getWallets(), expectedWallets)
 
-        verify(walletRepository).getWallets()
+        launch {
+            verify(walletRepository).getWallets()
+        }
     }
 
     @Test
@@ -73,7 +76,9 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getTransactions(), expectedTransactions)
 
-        verify(transactionsRepository).getTransactions()
+        launch {
+            verify(transactionsRepository).getTransactions()
+        }
     }
 
     @Test
@@ -85,7 +90,9 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getTransactions(walletId), expectedTransaction)
 
-        verify(transactionsRepository).getTransactionsByWalletId(walletId)
+        launch {
+            verify(transactionsRepository).getTransactionsByWalletId(walletId)
+        }
     }
 
     @Test
@@ -96,51 +103,64 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getCurrencyRate(), expectedCurrencyRate)
 
-        verify(currencyRateRepository).getCurrencyRate()
+        launch {
+            verify(currencyRateRepository).getCurrencyRate()
+        }
     }
 
     @Test
     fun addTransaction() {
         assertNotNull(walletInteractor.addTransaction(transactionStub))
 
-        verify(transactionsRepository).addTransaction(transactionStub)
+        launch {
+            verify(transactionsRepository).addTransaction(transactionStub)
+        }
     }
 
     @Test
     fun addWallet() {
         assertNotNull(walletInteractor.addWallet(walletStub))
 
-        verify(walletRepository).addWallet(walletStub)
+        launch {
+            verify(walletRepository).addWallet(walletStub)
+        }
     }
 
     @Test
     fun executeTransaction() {
         assertNotNull(walletInteractor.executeTransaction(transactionStub))
 
-        verify(transactionsRepository).addTransaction(transactionStub)
-        verify(walletRepository).updateWalletAfterTransaction(transactionStub.walletId, if (transactionStub.type == TransactionTypes.IN) transactionStub.cost else -transactionStub.cost)
+        launch {
+            verify(transactionsRepository).addTransaction(transactionStub)
+            verify(walletRepository).updateWalletAfterTransaction(transactionStub.walletId, if (transactionStub.type == TransactionTypes.IN) transactionStub.cost else -transactionStub.cost)
+        }
     }
 
     @Test
     fun updateWallet() {
         assertNotNull(walletInteractor.updateWallet(walletStub))
 
-        verify(walletRepository).updateWallet(walletStub)
+        launch {
+            verify(walletRepository).updateWallet(walletStub)
+        }
     }
 
     @Test
     fun updateCurrencyRate() {
         assertNotNull(walletInteractor.updateCurrencyRate())
 
-        verify(currencyRateRepository).updateCurrencyRate()
+        launch {
+            verify(currencyRateRepository).updateCurrencyRate()
+        }
     }
 
     @Test
     fun addPeriodTransactionAndGetId() {
-
         assertNotNull(walletInteractor.addPeriodTransaction(periodTransactionStub))
 
-        verify(transactionsRepository).addPeriodTransaction(periodTransactionStub)
+        launch {
+            verify(transactionsRepository).addPeriodTransaction(periodTransactionStub)
+        }
     }
 
     @Test
@@ -151,15 +171,19 @@ class WalletInteractorTest {
 
         assertEquals(walletInteractor.getPeriodTransaction(periodTransactionId), expectedPeriodTransaction)
 
-        verify(transactionsRepository).getPeriodTransaction(periodTransactionId)
+        launch {
+            verify(transactionsRepository).getPeriodTransaction(periodTransactionId)
+        }
     }
 
     @Test
     fun executePeriodTransactions() {
         `when`(transactionsRepository.getPeriodTransactions()).thenReturn(periodTransactionsListStub)
         assertNotNull(walletInteractor.executePeriodTransactions())
-        verify(transactionsRepository).addTransactions(walletInteractor.getDeferredTransactions(periodTransactionsListStub))
-        verify(walletRepository).updateWalletAfterTransaction(transactionsListStub.first().walletId, walletInteractor.transactionsSum(walletInteractor.getDeferredTransactions(periodTransactionsListStub)))
+        launch {
+            verify(transactionsRepository).addTransactions(walletInteractor.getDeferredTransactions(periodTransactionsListStub))
+            verify(walletRepository).updateWalletAfterTransaction(transactionsListStub.first().walletId, walletInteractor.transactionsSum(walletInteractor.getDeferredTransactions(periodTransactionsListStub)))
+        }
     }
 
     @Test

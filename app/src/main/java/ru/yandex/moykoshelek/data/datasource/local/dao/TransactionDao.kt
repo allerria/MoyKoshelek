@@ -11,10 +11,10 @@ import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 @Dao
 interface TransactionDao {
 
-    @Query("SELECT * from transactions order by created_at desc")
+    @Query("select * from transactions order by created_at desc")
     fun getAll(): LiveData<List<Transaction>>
 
-    @Query("SELECT * from transactions where wallet_id = :walletId order by created_at desc")
+    @Query("select * from transactions where wallet_id = :walletId order by created_at desc")
     fun getAllByWalletId(walletId: Int): LiveData<List<Transaction>>
 
     @Insert()

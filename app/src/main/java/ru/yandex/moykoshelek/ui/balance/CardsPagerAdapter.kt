@@ -6,15 +6,14 @@ import android.view.LayoutInflater
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import kotlinx.android.synthetic.main.card_view.view.*
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
-import ru.yandex.moykoshelek.data.entities.CurrencyTypes
+import ru.yandex.moykoshelek.extensions.currencySign
 
 
 class CardsPagerAdapter : PagerAdapter() {
+
     private val data: MutableList<Wallet> = mutableListOf()
 
     override fun getCount(): Int {
@@ -35,14 +34,14 @@ class CardsPagerAdapter : PagerAdapter() {
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-        (container as ViewPager).removeView(`object` as View)
+        container.removeView(`object` as View)
     }
 
     private fun bind(item: Wallet, view: View) {
         with(view) {
             card_name.text = item.name
             card_number.text = item.number
-            var currency = if (CurrencyTypes.USD == item.currency) "$ " else "\u20BD "
+            var currency = currencySign(item.currency)
             currency += String.format("%.2f", item.balance)
             card_balance.text = currency
             card_date.text = item.date
@@ -54,5 +53,4 @@ class CardsPagerAdapter : PagerAdapter() {
         data.addAll(wallets)
         notifyDataSetChanged()
     }
-
 }

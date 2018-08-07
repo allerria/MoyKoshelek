@@ -50,6 +50,15 @@
     <string name="period">Период в днях</string>
     <string name="income_expense">Доход/Расход</string>
     <string name="wallet">Счет</string>
+    <string name="wallet_name">Название кошелька</string>
+    <string name="wallet_number">Номер кошелька</string>
+    <string name="wallet_owner">Имя владельца</string>
+    <string name="card_number">Номер карты</string>
+    <string name="card_expires">Срок действия карты</string>
+    <string name="account_name">Название банка или счета</string>
+    <string name="account_number">Номер счета</string>
+    <string name="fill_field">Пожалуйста заполните поле</string>
+    <string name="place_example">Moscow, Russia</string>
 
     <string-array name="wallet_types">
         <item>Наличные деньги</item>

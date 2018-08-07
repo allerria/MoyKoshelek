@@ -17,7 +17,6 @@ import org.junit.FixMethodOrder
 import org.junit.runners.MethodSorters
 
 @RunWith(AndroidJUnit4::class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class MainActivityTest {
 
     @Rule
@@ -27,23 +26,21 @@ class MainActivityTest {
     val testString = "test string"
 
     @Test
-    fun t1_createWallet() {
+    fun createWallet() {
         onView(withId(R.id.action_add)).perform(click())
         onView(withText(getResourceString(R.string.wallet))).perform(click())
         onView(withId(R.id.wallet_name)).perform(replaceText(testString))
         Espresso.closeSoftKeyboard()
         onView(withId(R.id.submit_button)).perform(click())
-    }
 
-    @Test
-    fun t2_checkIfWalletWasCreated() {
+        //check created wallet
         onView(withId(R.id.cards_viewpager))
                 .perform(ViewPagerActions.scrollToLast())
                 .check(matches(hasDescendant(withText(testString))))
     }
 
     @Test
-    fun t3_createTransaction() {
+    fun createTransaction() {
         onView(withId(R.id.action_add)).perform(click())
         onView(withText(getResourceString(R.string.income_expense))).perform(click())
         onView(withId(R.id.cards_viewpager)).perform(ViewPagerActions.scrollToLast())
@@ -52,10 +49,8 @@ class MainActivityTest {
         onView(withId(R.id.transaction_amount)).perform(replaceText("555"))
         Espresso.closeSoftKeyboard()
         onView(withId(R.id.submit_button)).perform(click())
-    }
 
-    @Test
-    fun t4_checkIfTransactionWasCreated() {
+        //check created transaction
         onView(withId(R.id.cards_viewpager)).perform(ViewPagerActions.scrollToLast())
         onView(withId(R.id.transaction_rv))
                 .check(matches(hasDescendant(withText(R.string.cafe_and_restaurants))))

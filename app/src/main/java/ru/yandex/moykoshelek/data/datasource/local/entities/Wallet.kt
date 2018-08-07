@@ -10,7 +10,6 @@ data class Wallet(@PrimaryKey(autoGenerate = true) var id: Int,
                   @ColumnInfo(name = "currency") var currency: Int,
                   @ColumnInfo(name = "number") var number: String,
                   @ColumnInfo(name = "date") var date: String
-
-){
-    constructor():this(0, 0, "",0.0,0,"","12/12")
+) {
+    constructor() : this(0, 0, "", 0.0, 0, "", "12/12")
 }

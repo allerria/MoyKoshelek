@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProvider
 import javax.inject.Inject
 import javax.inject.Provider
 
-@Suppress("UNCHECKED_CAST")
 class DaggerViewModelFactory @Inject constructor(private val viewModelsMap: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>) :
         ViewModelProvider.Factory {
 
@@ -15,6 +14,7 @@ class DaggerViewModelFactory @Inject constructor(private val viewModelsMap: Map<
             modelClass.isAssignableFrom(it.key)
         }?.value ?: throw IllegalArgumentException("unknown model class $modelClass")
         return try {
+            @Suppress("UNCHECKED_CAST")
             creator.get() as T
         } catch (e: Exception) {
             throw RuntimeException(e)

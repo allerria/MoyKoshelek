@@ -27,10 +27,6 @@ android {
             shrinkResources false
         }
     }
-
-    lintOptions {
-        disable 'MissingTranslation'
-    }
 }
 
 ext {
@@ -39,9 +35,11 @@ ext {
     dagger = '2.13'
     timber = '4.6.1'
     archLivecycle = '1.1.1'
+    archTestings = '1.1.1'
     cicerone = '3.0.0'
     coroutine = '0.24.0'
     mockito = '2.20.1'
+    espresso = '3.0.2'
 }
 
 kotlin {
@@ -88,12 +86,12 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    androidTestImplementation "com.android.support.test.espresso:espresso-contrib:3.0.2"
-    androidTestImplementation "com.android.support.test.espresso:espresso-intents:3.0.2"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso"
+    androidTestImplementation "com.android.support.test.espresso:espresso-contrib:$espresso"
+    androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espresso"
     androidTestImplementation "org.mockito:mockito-core:$mockito"
     androidTestImplementation "org.mockito:mockito-android:$mockito"
-    testImplementation 'android.arch.core:core-testing:1.1.1'
+    testImplementation "android.arch.core:core-testing:$archTestings"
     testImplementation "org.mockito:mockito-core:$mockito"
     testImplementation "org.mockito:mockito-inline:$mockito"
 

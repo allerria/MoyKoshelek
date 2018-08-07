@@ -12,7 +12,7 @@ import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 @Dao
 interface PeriodTransactionDao {
 
-    @Query("SELECT * from period_transactions")
+    @Query("select * from period_transactions")
     fun getAll(): List<PeriodTransaction>
 
 

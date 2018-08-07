@@ -12,7 +12,7 @@ class MoyKoshelekApp : DaggerApplication() {
 
     companion object {
         @get:Synchronized
-        var instance: MoyKoshelekApp? = null
+        lateinit var instance: MoyKoshelekApp
             private set
     }
 

@@ -3,12 +3,14 @@ package ru.yandex.moykoshelek.extensions
 import android.app.Activity
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
+import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import java.text.SimpleDateFormat
 import java.util.*
 
+private val locale = Locale.getDefault()
 
-fun Date.toString(format: String, locale: Locale = Locale.getDefault()): String {
-    val formatter = SimpleDateFormat(format, locale)
+fun Date.format(): String {
+    val formatter = SimpleDateFormat("yyyy/MMMM/dd HH:mm:ss", locale)
     return formatter.format(this)
 }
 
@@ -28,3 +30,5 @@ fun Activity.hideKeyboard() {
         inputManager.hideSoftInputFromWindow(window.currentFocus.windowToken, 0)
     }
 }
+
+fun currencySign(currencyType: Int): String = if (CurrencyTypes.USD == currencyType) "$ " else "\u20BD "

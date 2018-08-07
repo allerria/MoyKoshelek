@@ -1,11 +1,9 @@
 package ru.yandex.moykoshelek.data.datasource.local.entities
 
 import android.arch.persistence.room.*
-import ru.yandex.moykoshelek.data.entities.Categories
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.extensions.getCurrentDateTime
-import ru.yandex.moykoshelek.extensions.toString
 import java.util.*
 
 @Entity(tableName = "period_transactions")

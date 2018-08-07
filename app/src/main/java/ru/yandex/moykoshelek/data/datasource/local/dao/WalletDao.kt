@@ -10,7 +10,7 @@ import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 @Dao
 interface WalletDao {
 
-    @Query("SELECT * from wallets")
+    @Query("select * from wallets")
     fun getAll(): LiveData<List<Wallet>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
