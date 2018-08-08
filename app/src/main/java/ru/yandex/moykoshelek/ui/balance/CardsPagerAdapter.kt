@@ -53,4 +53,8 @@ class CardsPagerAdapter : PagerAdapter() {
         data.addAll(wallets)
         notifyDataSetChanged()
     }
+
+    fun getItem(position: Int) = data[position]
+
+    fun itemPositionByWalletId(walletId: Int) = data.indexOfFirst { it.id == walletId }
 }

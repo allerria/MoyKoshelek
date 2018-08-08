@@ -2,6 +2,7 @@ package ru.yandex.moykoshelek
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.arch.lifecycle.MutableLiveData
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -11,6 +12,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.*
 import ru.yandex.moykoshelek.data.datasource.local.dao.PeriodTransactionDao
+import ru.yandex.moykoshelek.data.datasource.local.dao.TemplateTransactionDao
 import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDao
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
@@ -25,6 +27,7 @@ class TransactionRepositoryTest {
 
     private lateinit var transactionDao: TransactionDao
     private lateinit var periodTransactionDao: PeriodTransactionDao
+    private lateinit var templateTransactionDao: TemplateTransactionDao
     private lateinit var transactionsRepository: TransactionsRepository
     val transactionStub = Transaction(1, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
     val transactionsListStub = listOf(transactionStub, transactionStub)
@@ -40,30 +43,35 @@ class TransactionRepositoryTest {
     fun setUp() {
         transactionDao = mock(TransactionDao::class.java)
         periodTransactionDao = mock(PeriodTransactionDao::class.java)
-        transactionsRepository = TransactionsRepository(transactionDao, periodTransactionDao)
+        templateTransactionDao = mock(TemplateTransactionDao::class.java)
+        transactionsRepository = TransactionsRepository(transactionDao, periodTransactionDao, templateTransactionDao)
     }
 
     @Test
     fun getTransactions() {
-        val expectedTransactions = MutableLiveData<List<Transaction>>()
-        expectedTransactions.value = transactionsListStub
-        `when`(transactionDao.getAll()).thenReturn(expectedTransactions)
+        runBlocking {
+            val expectedTransactions = MutableLiveData<List<Transaction>>()
+            expectedTransactions.value = transactionsListStub
+            `when`(transactionDao.getAll()).thenReturn(expectedTransactions)
 
-        assertEquals(transactionsRepository.getTransactions(), expectedTransactions)
+            assertEquals(expectedTransactions, transactionsRepository.getTransactions())
 
-        verify(transactionDao).getAll()
+            verify(transactionDao).getAll()
+        }
     }
 
     @Test
     fun getTransactionsByWalletId() {
-        val expectedTransactions = MutableLiveData<List<Transaction>>()
-        val walletId = 1
-        expectedTransactions.value = transactionsListStub
-        `when`(transactionDao.getAllByWalletId(walletId)).thenReturn(expectedTransactions)
+        runBlocking {
+            val expectedTransactions = MutableLiveData<List<Transaction>>()
+            val walletId = 1
+            expectedTransactions.value = transactionsListStub
+            `when`(transactionDao.getAllByWalletId(walletId)).thenReturn(expectedTransactions)
 
-        assertEquals(transactionsRepository.getTransactionsByWalletId(walletId), expectedTransactions)
+            assertEquals(expectedTransactions, transactionsRepository.getTransactionsByWalletId(walletId))
 
-        verify(transactionDao).getAllByWalletId(walletId)
+            verify(transactionDao).getAllByWalletId(walletId)
+        }
     }
 
     @Test
@@ -75,35 +83,43 @@ class TransactionRepositoryTest {
 
     @Test
     fun addTransactions() {
-        assertNotNull(transactionsRepository.addTransactions(transactionsListStub))
+        runBlocking {
+            assertNotNull(transactionsRepository.addTransactions(transactionsListStub))
 
-        verify(transactionDao).insert(transactionsListStub)
+            verify(transactionDao).insert(transactionsListStub)
+        }
     }
 
     @Test
     fun getPeriodTransactions() {
-        `when`(periodTransactionDao.getAll()).thenReturn(periodTransactionsListStub)
+        runBlocking {
+            `when`(periodTransactionDao.getAll()).thenReturn(periodTransactionsListStub)
 
-        assertEquals(transactionsRepository.getPeriodTransactions(), periodTransactionsListStub)
+            assertEquals(periodTransactionsListStub, transactionsRepository.getPeriodTransactions())
 
-        verify(periodTransactionDao).getAll()
+            verify(periodTransactionDao).getAll()
+        }
     }
 
     @Test
     fun getPeriodTransactionById() {
-        val periodTransactionId = 1
-        `when`(periodTransactionDao.getPeriodTransaction(periodTransactionId)).thenReturn(periodTransactionStub)
+        runBlocking {
+            val periodTransactionId = 1
+            `when`(periodTransactionDao.getById(periodTransactionId)).thenReturn(periodTransactionStub)
 
-        assertEquals(transactionsRepository.getPeriodTransaction(periodTransactionId), periodTransactionStub)
+            assertEquals(periodTransactionStub, transactionsRepository.getPeriodTransaction(periodTransactionId))
 
-        verify(periodTransactionDao).getPeriodTransaction(periodTransactionId)
+            verify(periodTransactionDao).getById(periodTransactionId)
+        }
     }
 
     @Test
     fun addPeriodTransaction(){
-        assertNotNull(transactionsRepository.addPeriodTransaction(periodTransactionStub))
+        runBlocking {
+            assertNotNull(transactionsRepository.addPeriodTransaction(periodTransactionStub))
 
-        verify(periodTransactionDao).insert(periodTransactionStub)
+            verify(periodTransactionDao).insert(periodTransactionStub)
+        }
     }
 
 }

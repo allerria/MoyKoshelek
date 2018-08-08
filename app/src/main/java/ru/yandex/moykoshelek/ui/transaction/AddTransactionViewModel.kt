@@ -1,22 +1,30 @@
 package ru.yandex.moykoshelek.ui.transaction
 
+import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
+import ru.yandex.moykoshelek.data.datasource.local.entities.TemplateTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 import ru.yandex.moykoshelek.interactors.WalletInteractor
 import javax.inject.Inject
 
-class AddTransactionViewModel @Inject constructor(private val walletInteractor: WalletInteractor): ViewModel() {
+class AddTransactionViewModel @Inject constructor(private val walletInteractor: WalletInteractor) : ViewModel() {
 
-    val wallets: LiveData<List<Wallet>> = walletInteractor.getWallets()
+    val wallets = async { walletInteractor.getWallets() }
+    val templateTransactions = async { walletInteractor.getTemplateTransactions() }
 
-    fun executeTransaction(transaction: Transaction) {
+    fun executeTransaction(transaction: Transaction) = launch {
         walletInteractor.executeTransaction(transaction)
     }
 
-    fun executePeriodTransaction(transaction: Transaction, period: Int) {
+    fun executePeriodTransaction(transaction: Transaction, period: Int) = launch {
         val periodTransaction = PeriodTransaction()
         periodTransaction.time = transaction.date
         periodTransaction.period = period
@@ -30,6 +38,10 @@ class AddTransactionViewModel @Inject constructor(private val walletInteractor: 
         walletInteractor.executeTransaction(transaction)
     }
 
-    fun getWallet(position: Int) = wallets.value!![position]
+    fun createTemplateTransaction(transaction: Transaction, name: String, period: Int?) = launch {
+        val templateTransaction = TemplateTransaction(0, name, period, transaction.date, transaction.cost,
+                transaction.currency, transaction.placeholder, transaction.type, transaction.walletId, transaction.category)
+        walletInteractor.addTemplateTransaction(templateTransaction)
+    }
 
 }

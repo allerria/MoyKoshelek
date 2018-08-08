@@ -15,6 +15,7 @@ import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 import ru.yandex.moykoshelek.data.entities.WalletTypes
+import ru.yandex.moykoshelek.extensions.showSuccessToast
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
 import javax.inject.Inject
@@ -74,6 +75,7 @@ class AddWalletFragment : BaseFragment() {
             }
             viewModel.addWallet(this)
         }
+        showSuccessToast()
         router.backTo(Screens.BALANCE_SCREEN)
     }
 

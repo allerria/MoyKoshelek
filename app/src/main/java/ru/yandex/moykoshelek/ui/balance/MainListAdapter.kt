@@ -67,10 +67,9 @@ class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<Main
     }
 
     fun setData(transactionList: List<Transaction>) {
-        val oldItems = data
+        val diffResult = DiffUtil.calculateDiff(TransactionDiffUtil(data, transactionList))
         data.clear()
         data.addAll(transactionList)
-        val diffResult = DiffUtil.calculateDiff(TransactionDiffUtil(oldItems, transactionList))
         diffResult.dispatchUpdatesTo(this)
     }
 

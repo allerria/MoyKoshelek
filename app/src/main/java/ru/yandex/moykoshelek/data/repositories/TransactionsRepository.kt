@@ -1,14 +1,16 @@
 package ru.yandex.moykoshelek.data.repositories
 
 import android.arch.lifecycle.LiveData
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import ru.yandex.moykoshelek.data.datasource.local.dao.*
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
+import ru.yandex.moykoshelek.data.datasource.local.entities.TemplateTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
-import javax.inject.Inject
 
-class TransactionsRepository(private val transactionDao: TransactionDao, private val periodTransactionDao: PeriodTransactionDao) {
+class TransactionsRepository(
+        private val transactionDao: TransactionDao,
+        private val periodTransactionDao: PeriodTransactionDao,
+        private val templateTransactionDao: TemplateTransactionDao
+) {
 
     fun getTransactions(): LiveData<List<Transaction>> = transactionDao.getAll()
 
@@ -24,10 +26,15 @@ class TransactionsRepository(private val transactionDao: TransactionDao, private
 
     fun getPeriodTransactions(): List<PeriodTransaction> = periodTransactionDao.getAll()
 
-    fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction = periodTransactionDao.getPeriodTransaction(periodTransactionId)
+    fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction = periodTransactionDao.getById(periodTransactionId)
 
     fun addPeriodTransaction(periodTransaction: PeriodTransaction) {
         periodTransactionDao.insert(periodTransaction)
     }
 
+    fun getTemplateTransactions(): LiveData<List<TemplateTransaction>> = templateTransactionDao.getAll()
+
+    fun addTemplateTransaction(templateTransaction: TemplateTransaction) {
+        templateTransactionDao.insert(templateTransaction)
+    }
 }

@@ -59,6 +59,10 @@
     <string name="account_number">Номер счета</string>
     <string name="fill_field">Пожалуйста заполните поле</string>
     <string name="place_example">Moscow, Russia</string>
+    <string name="success">Успешно!</string>
+    <string name="create_template_question">Создать шаблон?</string>
+    <string name="template_name">Имя шаблона</string>
+    <string name="select_template">Выбрать шаблон</string>
 
     <string-array name="wallet_types">
         <item>Наличные деньги</item>

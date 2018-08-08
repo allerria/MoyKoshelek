@@ -10,15 +10,14 @@ import android.view.View
 import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.card_view.view.*
 import kotlinx.android.synthetic.main.fragment_balance.*
-import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.extensions.currencySign
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class BalanceFragment : BaseFragment() {
@@ -50,9 +49,9 @@ class BalanceFragment : BaseFragment() {
         Timber.d("onViewCreated")
     }
 
-    private fun initObservers() {
+    private fun initObservers() = launch(UI) {
         viewModel.updateCurrencyRate()
-        viewModel.wallets.observe(this, Observer { wallets ->
+        viewModel.wallets.await().observe(this@BalanceFragment, Observer { wallets ->
             if (wallets != null && wallets.isNotEmpty()) {
                 cardAdapter.setData(wallets)
                 wallets.forEach { it ->
@@ -65,7 +64,7 @@ class BalanceFragment : BaseFragment() {
                         }
                     }
                 }
-                observeTransactions(cards_viewpager.currentItem)
+                observeTransactions(cardAdapter.getItem(cards_viewpager.currentItem).id)
             }
         })
 
@@ -83,29 +82,30 @@ class BalanceFragment : BaseFragment() {
         with(cards_viewpager) {
             adapter = cardAdapter
             clipToPadding = false
-            setPadding(resources.getDimension(R.dimen.dimen_96).toInt(), 0, resources.getDimension(R.dimen.dimen_96).toInt(), 0)
+            setPadding(resources.getDimension(R.dimen.dimen_48).toInt(), 0, resources.getDimension(R.dimen.dimen_48).toInt(), 0)
             pageMargin = resources.getDimension(R.dimen.dimen_48).toInt()
             addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                 override fun onPageScrollStateChanged(p0: Int) {}
 
                 override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {
-                    viewModel.getTransactions(viewModel.getWalletId(p0)).removeObservers(this@BalanceFragment)
+                    runBlocking {
+                        viewModel.getTransactions(cardAdapter.getItem(p0).id).await().removeObservers(this@BalanceFragment)
+                    }
                 }
 
                 override fun onPageSelected(p0: Int) {
-                    observeTransactions(p0)
+                    observeTransactions(cardAdapter.getItem(p0).id)
                 }
             })
         }
     }
 
-    private fun observeTransactions(walletPosition: Int) {
-        viewModel.getTransactions(viewModel.getWalletId(walletPosition)).observe(this@BalanceFragment, Observer { it ->
+    private fun observeTransactions(id: Int) = launch(UI) {
+        viewModel.getTransactions(id).await().observe(this@BalanceFragment, Observer { it ->
             if (it != null) {
                 transactionAdapter.setData(it)
             }
         })
-
     }
 
 }

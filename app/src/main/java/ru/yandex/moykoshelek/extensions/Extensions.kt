@@ -2,7 +2,10 @@ package ru.yandex.moykoshelek.extensions
 
 import android.app.Activity
 import android.content.Context
+import android.support.v4.app.Fragment
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,3 +35,7 @@ fun Activity.hideKeyboard() {
 }
 
 fun currencySign(currencyType: Int): String = if (CurrencyTypes.USD == currencyType) "$ " else "\u20BD "
+
+fun Fragment.showSuccessToast() {
+    Toast.makeText(context, R.string.success, Toast.LENGTH_LONG).show()
+}

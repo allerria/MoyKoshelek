@@ -17,11 +17,8 @@ interface PeriodTransactionDao {
 
 
     @Query("select * from period_transactions where id = :periodTransactionId")
-    fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction
+    fun getById(periodTransactionId: Int): PeriodTransaction
 
     @Insert()
     fun insert(periodTransaction: PeriodTransaction)
 }
-
-//suspend fun PeriodTransactionDao.getPeriodTransactions(): List<PeriodTransaction> = withContext(DefaultDispatcher) { getAll() }
-//suspend fun PeriodTransactionDao.getTransaction(periodTransactionId: Int): PeriodTransaction = withContext(DefaultDispatcher) { getPeriodTransaction(periodTransactionId) }

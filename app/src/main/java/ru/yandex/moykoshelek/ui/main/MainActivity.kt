@@ -82,7 +82,7 @@ class MainActivity : BaseActivity() {
 
     private fun showSelectAddDialog() {
         val array = arrayOf(getString(R.string.wallet), getString(R.string.income_expense))
-        selector("Выберите что добавить", array.toList()) { _, i ->
+        selector(getString(R.string.add), array.toList()) { _, i ->
             when (i) {
                 0 -> router.navigateTo(Screens.ADD_WALLET_SCREEN)
                 1 -> router.navigateTo(Screens.ADD_TRANSACTION_SCREEN)

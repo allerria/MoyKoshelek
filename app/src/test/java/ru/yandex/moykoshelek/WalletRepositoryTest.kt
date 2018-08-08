@@ -2,6 +2,7 @@ package ru.yandex.moykoshelek
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.arch.lifecycle.MutableLiveData
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -36,36 +37,44 @@ class WalletRepositoryTest {
 
     @Test
     fun getWallets() {
-        val expectedWallets = MutableLiveData<List<Wallet>>()
-        expectedWallets.value = walletListStub
-        `when`(walletDao.getAll()).thenReturn(expectedWallets)
+        runBlocking {
+            val expectedWallets = MutableLiveData<List<Wallet>>()
+            expectedWallets.value = walletListStub
+            `when`(walletDao.getAll()).thenReturn(expectedWallets)
 
-        assertEquals(walletRepository.getWallets(), expectedWallets)
+            assertEquals(expectedWallets, walletRepository.getWallets())
 
-        verify(walletDao).getAll()
+            verify(walletDao).getAll()
+        }
     }
 
     @Test
     fun addWallet() {
-        assertNotNull(walletRepository.addWallet(walletStub))
+        runBlocking {
+            assertNotNull(walletRepository.addWallet(walletStub))
 
-        verify(walletDao).insert(walletStub)
+            verify(walletDao).insert(walletStub)
+        }
     }
 
     @Test
     fun updateWallet() {
-        assertNotNull(walletRepository.updateWallet(walletStub))
+        runBlocking {
+            assertNotNull(walletRepository.updateWallet(walletStub))
 
-        verify(walletDao).update(walletStub)
+            verify(walletDao).update(walletStub)
+        }
     }
 
     @Test
     fun updateWalletAfterTransaction() {
-        val walletId = 1
-        val transactionCost = 1.5
-        assertNotNull(walletRepository.updateWalletAfterTransaction(walletId, transactionCost))
+        runBlocking {
+            val walletId = 1
+            val transactionCost = 1.5
+            assertNotNull(walletRepository.updateWalletAfterTransaction(walletId, transactionCost))
 
-        verify(walletDao).executeTransaction(walletId, transactionCost)
+            verify(walletDao).executeTransaction(walletId, transactionCost)
+        }
     }
 
 }

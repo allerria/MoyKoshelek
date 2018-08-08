@@ -23,6 +23,3 @@ interface TransactionDao {
     @Insert()
     fun insert(transactions: List<Transaction>)
 }
-
-//suspend fun TransactionDao.getTransactions(): LiveData<List<Transaction>> = withContext(DefaultDispatcher) { getAll() }
-//suspend fun TransactionDao.getTransactionsByWalletId(walletId: Int): LiveData<List<Transaction>> = withContext(DefaultDispatcher) { getAllByWalletId(walletId) }

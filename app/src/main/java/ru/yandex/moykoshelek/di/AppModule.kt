@@ -1,10 +1,12 @@
 package ru.yandex.moykoshelek.di
 
 import android.app.Application
+import android.preference.PreferenceManager.getDefaultSharedPreferences
 import dagger.Module
 import dagger.Provides
 import ru.yandex.moykoshelek.data.datasource.local.CurrencyPref
 import ru.yandex.moykoshelek.data.datasource.local.dao.PeriodTransactionDao
+import ru.yandex.moykoshelek.data.datasource.local.dao.TemplateTransactionDao
 import ru.yandex.moykoshelek.data.datasource.local.dao.TransactionDao
 import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDao
 import ru.yandex.moykoshelek.data.datasource.remote.CurrencyRateRemote
@@ -25,7 +27,11 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideTransactionsRepository(transactionDao: TransactionDao, periodTransactionDao: PeriodTransactionDao): TransactionsRepository = TransactionsRepository(transactionDao, periodTransactionDao)
+    fun provideTransactionsRepository(
+            transactionDao: TransactionDao,
+            periodTransactionDao: PeriodTransactionDao,
+            templateTransactionDao: TemplateTransactionDao
+    ): TransactionsRepository = TransactionsRepository(transactionDao, periodTransactionDao, templateTransactionDao)
 
     @Provides
     @Singleton
@@ -33,7 +39,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideCurrencyPref(app: Application): CurrencyPref = CurrencyPref(app)
+    fun provideCurrencyPref(app: Application): CurrencyPref = CurrencyPref(getDefaultSharedPreferences(app))
 
     @Provides
     @Singleton

@@ -3,7 +3,7 @@ package ru.yandex.moykoshelek
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.arch.lifecycle.MutableLiveData
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -57,80 +57,80 @@ class WalletInteractorTest {
 
     @Test
     fun getBalance() {
-        val expectedWallets = MutableLiveData<List<Wallet>>()
-        expectedWallets.value = walletListStub
-        `when`(walletRepository.getWallets()).thenReturn(expectedWallets)
+        runBlocking {
+            val expectedWallets = MutableLiveData<List<Wallet>>()
+            expectedWallets.value = walletListStub
+            `when`(walletRepository.getWallets()).thenReturn(expectedWallets)
 
-        assertEquals(walletInteractor.getWallets(), expectedWallets)
+            assertEquals(expectedWallets, walletInteractor.getWallets())
 
-        launch {
             verify(walletRepository).getWallets()
         }
     }
 
     @Test
     fun getTransactions() {
-        val expectedTransactions = MutableLiveData<List<Transaction>>()
-        expectedTransactions.value = transactionsListStub
-        `when`(transactionsRepository.getTransactions()).thenReturn(expectedTransactions)
+        runBlocking {
+            val expectedTransactions = MutableLiveData<List<Transaction>>()
+            expectedTransactions.value = transactionsListStub
+            `when`(transactionsRepository.getTransactions()).thenReturn(expectedTransactions)
 
-        assertEquals(walletInteractor.getTransactions(), expectedTransactions)
+            assertEquals(expectedTransactions, walletInteractor.getTransactions())
 
-        launch {
             verify(transactionsRepository).getTransactions()
         }
     }
 
     @Test
     fun getTransactionByWalletId() {
-        val walletId = 1
-        val expectedTransaction = MutableLiveData<List<Transaction>>()
-        expectedTransaction.value = transactionsListStub
-        `when`(transactionsRepository.getTransactionsByWalletId(walletId)).thenReturn(expectedTransaction)
+        runBlocking {
+            val walletId = 1
+            val expectedTransaction = MutableLiveData<List<Transaction>>()
+            expectedTransaction.value = transactionsListStub
+            `when`(transactionsRepository.getTransactionsByWalletId(walletId)).thenReturn(expectedTransaction)
 
-        assertEquals(walletInteractor.getTransactions(walletId), expectedTransaction)
+            assertEquals(expectedTransaction, walletInteractor.getTransactions(walletId))
 
-        launch {
             verify(transactionsRepository).getTransactionsByWalletId(walletId)
         }
     }
 
     @Test
     fun getCurrencyRate() {
-        val expectedCurrencyRate = MutableLiveData<Float>()
-        expectedCurrencyRate.value = currencyRateStub
-        `when`(currencyRateRepository.getCurrencyRate()).thenReturn(expectedCurrencyRate)
+        runBlocking {
+            val expectedCurrencyRate = MutableLiveData<Float>()
+            expectedCurrencyRate.value = currencyRateStub
+            `when`(currencyRateRepository.getCurrencyRate()).thenReturn(expectedCurrencyRate)
 
-        assertEquals(walletInteractor.getCurrencyRate(), expectedCurrencyRate)
+            assertEquals(expectedCurrencyRate, walletInteractor.getCurrencyRate())
 
-        launch {
             verify(currencyRateRepository).getCurrencyRate()
         }
     }
 
     @Test
     fun addTransaction() {
-        assertNotNull(walletInteractor.addTransaction(transactionStub))
+        runBlocking {
+            assertNotNull(walletInteractor.addTransaction(transactionStub))
 
-        launch {
             verify(transactionsRepository).addTransaction(transactionStub)
         }
     }
 
     @Test
     fun addWallet() {
-        assertNotNull(walletInteractor.addWallet(walletStub))
+        runBlocking {
+            assertNotNull(walletInteractor.addWallet(walletStub))
 
-        launch {
             verify(walletRepository).addWallet(walletStub)
         }
     }
 
     @Test
     fun executeTransaction() {
-        assertNotNull(walletInteractor.executeTransaction(transactionStub))
+        runBlocking {
+            assertNotNull(walletInteractor.executeTransaction(transactionStub))
 
-        launch {
             verify(transactionsRepository).addTransaction(transactionStub)
             verify(walletRepository).updateWalletAfterTransaction(transactionStub.walletId, if (transactionStub.type == TransactionTypes.IN) transactionStub.cost else -transactionStub.cost)
         }
@@ -138,77 +138,86 @@ class WalletInteractorTest {
 
     @Test
     fun updateWallet() {
-        assertNotNull(walletInteractor.updateWallet(walletStub))
+        runBlocking {
+            assertNotNull(walletInteractor.updateWallet(walletStub))
 
-        launch {
             verify(walletRepository).updateWallet(walletStub)
         }
     }
 
     @Test
     fun updateCurrencyRate() {
-        assertNotNull(walletInteractor.updateCurrencyRate())
+        runBlocking {
+            assertNotNull(walletInteractor.updateCurrencyRate())
 
-        launch {
             verify(currencyRateRepository).updateCurrencyRate()
         }
     }
 
     @Test
     fun addPeriodTransactionAndGetId() {
-        assertNotNull(walletInteractor.addPeriodTransaction(periodTransactionStub))
+        runBlocking {
+            assertNotNull(walletInteractor.addPeriodTransaction(periodTransactionStub))
 
-        launch {
             verify(transactionsRepository).addPeriodTransaction(periodTransactionStub)
         }
     }
 
     @Test
     fun getPeriodTransaction() {
-        val periodTransactionId = 1
-        val expectedPeriodTransaction = periodTransactionStub
-        `when`(transactionsRepository.getPeriodTransaction(periodTransactionId)).thenReturn(periodTransactionStub)
+        runBlocking {
+            val periodTransactionId = 1
+            val expectedPeriodTransaction = periodTransactionStub
+            `when`(transactionsRepository.getPeriodTransaction(periodTransactionId)).thenReturn(periodTransactionStub)
 
-        assertEquals(walletInteractor.getPeriodTransaction(periodTransactionId), expectedPeriodTransaction)
+            assertEquals(expectedPeriodTransaction, walletInteractor.getPeriodTransaction(periodTransactionId))
 
-        launch {
             verify(transactionsRepository).getPeriodTransaction(periodTransactionId)
         }
     }
 
     @Test
     fun executePeriodTransactions() {
-        `when`(transactionsRepository.getPeriodTransactions()).thenReturn(periodTransactionsListStub)
-        assertNotNull(walletInteractor.executePeriodTransactions())
-        launch {
-            verify(transactionsRepository).addTransactions(walletInteractor.getDeferredTransactions(periodTransactionsListStub))
-            verify(walletRepository).updateWalletAfterTransaction(transactionsListStub.first().walletId, walletInteractor.transactionsSum(walletInteractor.getDeferredTransactions(periodTransactionsListStub)))
+        runBlocking {
+            val expectedDeferredTransactions = walletInteractor.getDeferredTransactions(periodTransactionsListStub)
+            val expectedTransactionsSum = walletInteractor.transactionsSum(walletInteractor.getDeferredTransactions(periodTransactionsListStub))
+            `when`(transactionsRepository.getPeriodTransactions()).thenReturn(periodTransactionsListStub)
+
+            assertNotNull(walletInteractor.executePeriodTransactions())
+
+            verify(transactionsRepository).addTransactions(expectedDeferredTransactions)
+            verify(walletRepository).updateWalletAfterTransaction(transactionsListStub.first().walletId, expectedTransactionsSum)
         }
     }
 
     @Test
     fun getDeferredTransactions() {
-        val periodTransactions = listOf(periodTransactionStub)
-        val cal = Calendar.getInstance()
-        cal.time = periodTransactionStub.time
-        cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
-        val time1 = cal.time
-        cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
-        val time2 = cal.time
-        val expectedTransactions = listOf(Transaction(0, time1, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"), Transaction(0, time2, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"))
-        assertEquals(walletInteractor.getDeferredTransactions(periodTransactions), expectedTransactions)
+        runBlocking {
+            val periodTransactions = listOf(periodTransactionStub)
+            val cal = Calendar.getInstance()
+            cal.time = periodTransactionStub.time
+            cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
+            val time1 = cal.time
+            cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
+            val time2 = cal.time
+            val expectedTransactions = listOf(Transaction(0, time1, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"), Transaction(0, time2, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"))
+
+            assertEquals(expectedTransactions, walletInteractor.getDeferredTransactions(periodTransactions))
+        }
     }
 
     @Test
     fun transactionsSum() {
-        val transactions = listOf(transactionStub, transactionStub)
-        var expectedSum = 0.0
-        if (transactionStub.type == TransactionTypes.IN) {
-            expectedSum += transactionStub.cost * 2
-        } else {
-            expectedSum -= transactionStub.cost * 2
-        }
-        assertEquals(walletInteractor.transactionsSum(transactions).toFloat(), expectedSum.toFloat())
-    }
+        runBlocking {
+            val transactions = listOf(transactionStub, transactionStub)
+            var expectedSum = 0.0
+            if (transactionStub.type == TransactionTypes.IN) {
+                expectedSum += transactionStub.cost * 2
+            } else {
+                expectedSum -= transactionStub.cost * 2
+            }
 
+            assertEquals(walletInteractor.transactionsSum(transactions).toFloat(), expectedSum.toFloat())
+        }
+    }
 }

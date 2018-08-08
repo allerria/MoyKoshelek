@@ -23,7 +23,7 @@ class MainActivityTest {
     @JvmField
     val activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, true, true)
 
-    val testString = "test string"
+    private val testString = "test string"
 
     @Test
     fun createWallet() {
