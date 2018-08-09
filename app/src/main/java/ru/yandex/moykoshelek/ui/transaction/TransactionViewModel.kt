@@ -1,23 +1,19 @@
 package ru.yandex.moykoshelek.ui.transaction
 
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.TemplateTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
-import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
+import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.interactors.WalletInteractor
 import javax.inject.Inject
 
-class AddTransactionViewModel @Inject constructor(private val walletInteractor: WalletInteractor) : ViewModel() {
+class TransactionViewModel @Inject constructor(private val walletInteractor: WalletInteractor) : ViewModel() {
 
     val wallets = async { walletInteractor.getWallets() }
+
     val templateTransactions = async { walletInteractor.getTemplateTransactions() }
 
     fun executeTransaction(transaction: Transaction) = launch {
@@ -44,4 +40,16 @@ class AddTransactionViewModel @Inject constructor(private val walletInteractor: 
         walletInteractor.addTemplateTransaction(templateTransaction)
     }
 
+    fun getTransactionById(transactionId: Int) = async { walletInteractor.getTransactionById(transactionId) }
+
+    fun executeAndUpdateTransaction(transaction: Transaction, oldTransaction: Transaction) = launch {
+        var oldCost = 0.0
+        var newCost = 0.0
+        newCost = if (transaction.type == TransactionTypes.IN) transaction.cost else -transaction.cost
+        oldCost = if (oldTransaction.type == TransactionTypes.IN) -oldTransaction.cost else oldTransaction.cost
+
+        walletInteractor.updateWalletBalance(oldTransaction.walletId, oldCost)
+        walletInteractor.updateWalletBalance(transaction.walletId, newCost)
+        walletInteractor.updateTransaction(transaction)
+    }
 }

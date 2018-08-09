@@ -3,12 +3,9 @@ package ru.yandex.moykoshelek.ui.wallet
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
-import kotlinx.android.synthetic.main.fragment_add_wallet.*
+import kotlinx.android.synthetic.main.fragment_wallet.*
 import org.jetbrains.anko.forEachChild
 import org.jetbrains.anko.forEachChildWithIndex
 import ru.terrakok.cicerone.Router
@@ -20,23 +17,23 @@ import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
 import javax.inject.Inject
 
-class AddWalletFragment : BaseFragment() {
+class WalletFragment : BaseFragment() {
 
-    override val layoutRes = R.layout.fragment_add_wallet
-    override val TAG = Screens.ADD_WALLET_SCREEN
+    override val layoutRes = R.layout.fragment_wallet
+    override val TAG = Screens.WALLET_SCREEN
 
     @Inject
     lateinit var router: Router
 
     @Inject
-    lateinit var viewModel: AddWalletViewModel
+    lateinit var viewModel: WalletViewModel
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, factory).get(AddWalletViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, factory).get(WalletViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

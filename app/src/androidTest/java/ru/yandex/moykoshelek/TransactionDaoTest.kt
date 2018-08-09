@@ -31,24 +31,46 @@ class TransactionDaoTest: DbTest() {
     }
 
     @Test
-    fun insertManyAndGetAll() {
+    fun insertOrUpdateManyAndGetAll() {
         runBlocking {
             assertNotNull(walletDao.insert(walletStub))
 
-            assertNotNull(transactionDao.insert(transactionsListStub))
+            assertNotNull(transactionDao.insertOrUpdate(transactionsListStub))
 
             assertEquals(transactionsListStub, getValue(transactionDao.getAll()))
         }
     }
 
     @Test
-    fun insertAndGetByWalletId() {
+    fun insertOrUpdateAndGetByWalletId() {
         runBlocking {
             assertNotNull(walletDao.insert(walletStub))
 
-            assertNotNull(transactionDao.insert(transactionStub))
+            assertNotNull(transactionDao.insertOrUpdate(transactionStub))
 
             assertEquals(listOf(transactionStub), getValue(transactionDao.getAllByWalletId(transactionStub.walletId)))
+        }
+    }
+
+    @Test
+    fun delete() {
+        runBlocking {
+            assertNotNull(walletDao.insert(walletStub))
+            assertNotNull(transactionDao.insertOrUpdate(transactionStub))
+
+            assertNotNull(transactionDao.delete(transactionStub))
+
+            assertEquals(listOf<List<Transaction>>(), getValue(transactionDao.getAll()))
+        }
+    }
+
+    @Test
+    fun getById() {
+        runBlocking {
+            assertNotNull(walletDao.insert(walletStub))
+            assertNotNull(transactionDao.insertOrUpdate(transactionStub))
+
+            assertEquals(transactionStub, getValue(transactionDao.getById(transactionStub.id)))
         }
     }
 

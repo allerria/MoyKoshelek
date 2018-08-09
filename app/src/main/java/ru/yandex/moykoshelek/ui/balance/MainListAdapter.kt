@@ -10,16 +10,19 @@ import kotlinx.android.synthetic.main.transaction_expand.view.*
 import kotlinx.android.synthetic.main.transaction_item.view.*
 import kotlinx.android.synthetic.main.transaction_main.view.*
 import org.jetbrains.anko.textColorResource
+import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.extensions.currencySign
 import ru.yandex.moykoshelek.extensions.format
 import ru.yandex.moykoshelek.ui.common.TransactionDiffUtil
+import timber.log.Timber
 
-class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<MainListAdapter.ViewHolder>() {
+class MainListAdapter(private val clickListener: (Int) -> Unit) : RecyclerView.Adapter<MainListAdapter.ViewHolder>() {
 
     private val data: MutableList<Transaction> = mutableListOf()
+    private val transactions: MutableList<Transaction> = mutableListOf()
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         viewHolder.bind(data[position])
@@ -34,7 +37,8 @@ class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<Main
         return data.size
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private var transactionId: Int = 0
 
         init {
             with(itemView) {
@@ -45,11 +49,13 @@ class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<Main
                         transaction_arrow.setImageResource(R.drawable.ic_arrow_down)
                     }
                 }
+                edit_button.setOnClickListener { clickListener(transactionId) }
             }
         }
 
         fun bind(item: Transaction) {
             with(itemView) {
+                transactionId = item.id
                 transaction_tag.text = item.category
                 var currency = currencySign(item.currency) + item.cost
                 if (item.type == TransactionTypes.IN) {
@@ -66,11 +72,17 @@ class MainListAdapter(private val context: Context?) : RecyclerView.Adapter<Main
         }
     }
 
-    fun setData(transactionList: List<Transaction>) {
+    fun setData(walletId: Int) {
+        val transactionList = transactions.filter { it.walletId == walletId }
         val diffResult = DiffUtil.calculateDiff(TransactionDiffUtil(data, transactionList))
         data.clear()
         data.addAll(transactionList)
         diffResult.dispatchUpdatesTo(this)
+    }
+
+    fun setTransactions(transactionList: List<Transaction>) {
+        transactions.clear()
+        transactions.addAll(transactionList)
     }
 
 }

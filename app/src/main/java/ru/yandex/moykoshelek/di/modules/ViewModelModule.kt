@@ -8,8 +8,8 @@ import dagger.multibindings.IntoMap
 import ru.yandex.moykoshelek.di.ViewModelKey
 import ru.yandex.moykoshelek.ui.balance.BalanceViewModel
 import ru.yandex.moykoshelek.ui.settings.SettingsViewModel
-import ru.yandex.moykoshelek.ui.transaction.AddTransactionViewModel
-import ru.yandex.moykoshelek.ui.wallet.AddWalletViewModel
+import ru.yandex.moykoshelek.ui.transaction.TransactionViewModel
+import ru.yandex.moykoshelek.ui.wallet.WalletViewModel
 import ru.yandex.moykoshelek.util.DaggerViewModelFactory
 
 @Module
@@ -24,13 +24,13 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(AddTransactionViewModel::class)
-    abstract fun bindAddTransactionViewModel(addTransactionViewModel: AddTransactionViewModel): ViewModel
+    @ViewModelKey(TransactionViewModel::class)
+    abstract fun bindAddTransactionViewModel(transactionViewModel: TransactionViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(AddWalletViewModel::class)
-    abstract fun bindAddWalletViewModel(addWalletViewModel: AddWalletViewModel): ViewModel
+    @ViewModelKey(WalletViewModel::class)
+    abstract fun bindAddWalletViewModel(walletViewModel: WalletViewModel): ViewModel
 
     @Binds
     @IntoMap

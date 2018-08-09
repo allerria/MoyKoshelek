@@ -77,4 +77,12 @@ class WalletRepositoryTest {
         }
     }
 
+    @Test
+    fun deleteWallet() {
+        runBlocking {
+            assertNotNull(walletRepository.deleteWallet(walletStub))
+
+            verify(walletDao).delete(walletStub)
+        }
+    }
 }

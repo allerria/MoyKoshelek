@@ -27,5 +27,8 @@ interface WalletDao {
 
     @Query("update wallets set balance = balance + :transactionCost where id = :walletId")
     fun executeTransaction(walletId: Int, transactionCost: Double)
+
+    @Delete
+    fun delete(wallet: Wallet)
 }
 

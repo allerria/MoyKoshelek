@@ -19,4 +19,8 @@ class WalletRepository (private val walletDao: WalletDao) {
     fun updateWalletAfterTransaction(walletId: Int, transactionCost: Double) {
         walletDao.executeTransaction(walletId, transactionCost)
     }
+
+    fun deleteWallet(wallet: Wallet) {
+        walletDao.delete(wallet)
+    }
 }

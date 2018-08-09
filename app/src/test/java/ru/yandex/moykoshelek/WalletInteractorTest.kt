@@ -13,6 +13,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.*
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
+import ru.yandex.moykoshelek.data.datasource.local.entities.TemplateTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
@@ -34,14 +35,17 @@ class WalletInteractorTest {
     private lateinit var walletRepository: WalletRepository
     private lateinit var walletInteractor: WalletInteractor
 
-    val walletStub = Wallet(1, WalletTypes.BANK_ACCOUNT, "testwallet", 1000.0, CurrencyTypes.RUB, "2", "22/12")
-    val walletListStub = listOf(walletStub, walletStub)
-    val transactionStub = Transaction(1, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
-    val transactionsListStub = listOf(transactionStub, transactionStub)
-    val currencyRateStub = 63.0f
-    val periodTransactionStub = PeriodTransaction(1, getCurrentDateTimeBeforeDays(14), 7, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
-    val periodTransactionStub1 = PeriodTransaction(2, getCurrentDateTimeBeforeDays(30), 10, 5.0, CurrencyTypes.RUB, "asd", TransactionTypes.OUT, 1, "agagaga")
-    val periodTransactionsListStub = listOf(periodTransactionStub, periodTransactionStub1)
+    private val walletStub = Wallet(1, WalletTypes.BANK_ACCOUNT, "testwallet", 1000.0, CurrencyTypes.RUB, "2", "22/12")
+    private val walletListStub = listOf(walletStub, walletStub)
+    private val transactionStub = Transaction(1, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
+    private val transactionsListStub = listOf(transactionStub, transactionStub)
+    private val currencyRateStub = 63.0f
+    private val periodTransactionStub = PeriodTransaction(1, getCurrentDateTimeBeforeDays(14), 7, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
+    private val periodTransactionStub1 = PeriodTransaction(2, getCurrentDateTimeBeforeDays(30), 10, 5.0, CurrencyTypes.RUB, "asd", TransactionTypes.OUT, 1, "agagaga")
+    private val periodTransactionsListStub = listOf(periodTransactionStub, periodTransactionStub1)
+    private val templateTransactionStub = TemplateTransaction(1, "template", null, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
+    private val templateTransactionStub1 = TemplateTransaction(2, "template", 7, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
+    private val templateTransactionsListStub = listOf(templateTransactionStub, templateTransactionStub1)
 
     @Rule
     @JvmField
@@ -56,7 +60,7 @@ class WalletInteractorTest {
     }
 
     @Test
-    fun getBalance() {
+    fun getWallets() {
         runBlocking {
             val expectedWallets = MutableLiveData<List<Wallet>>()
             expectedWallets.value = walletListStub
@@ -65,6 +69,33 @@ class WalletInteractorTest {
             assertEquals(expectedWallets, walletInteractor.getWallets())
 
             verify(walletRepository).getWallets()
+        }
+    }
+
+    @Test
+    fun addWallet() {
+        runBlocking {
+            assertNotNull(walletInteractor.addWallet(walletStub))
+
+            verify(walletRepository).addWallet(walletStub)
+        }
+    }
+
+    @Test
+    fun updateWallet() {
+        runBlocking {
+            assertNotNull(walletInteractor.updateWallet(walletStub))
+
+            verify(walletRepository).updateWallet(walletStub)
+        }
+    }
+
+    @Test
+    fun deleteWallet() {
+        runBlocking {
+            assertNotNull(walletInteractor.deleteWallet(walletStub))
+
+            verify(walletRepository).deleteWallet(walletStub)
         }
     }
 
@@ -82,7 +113,7 @@ class WalletInteractorTest {
     }
 
     @Test
-    fun getTransactionByWalletId() {
+    fun getTransactionsByWalletId() {
         runBlocking {
             val walletId = 1
             val expectedTransaction = MutableLiveData<List<Transaction>>()
@@ -96,33 +127,33 @@ class WalletInteractorTest {
     }
 
     @Test
-    fun getCurrencyRate() {
+    fun getTransactionById() {
         runBlocking {
-            val expectedCurrencyRate = MutableLiveData<Float>()
-            expectedCurrencyRate.value = currencyRateStub
-            `when`(currencyRateRepository.getCurrencyRate()).thenReturn(expectedCurrencyRate)
+            val expectedTransaction = MutableLiveData<Transaction>()
+            expectedTransaction.value = transactionStub
+            `when`(transactionsRepository.getTransactionById(transactionStub.id)).thenReturn(expectedTransaction)
 
-            assertEquals(expectedCurrencyRate, walletInteractor.getCurrencyRate())
+            assertEquals(expectedTransaction, walletInteractor.getTransactionById(transactionStub.id))
 
-            verify(currencyRateRepository).getCurrencyRate()
+            verify(transactionsRepository).getTransactionById(transactionStub.id)
         }
     }
 
     @Test
-    fun addTransaction() {
+    fun addOrUpdateTransaction() {
         runBlocking {
-            assertNotNull(walletInteractor.addTransaction(transactionStub))
+            assertNotNull(walletInteractor.addOrUpdateTransaction(transactionStub))
 
-            verify(transactionsRepository).addTransaction(transactionStub)
+            verify(transactionsRepository).addOrUpdateTransaction(transactionStub)
         }
     }
 
     @Test
-    fun addWallet() {
+    fun deleteTransaction() {
         runBlocking {
-            assertNotNull(walletInteractor.addWallet(walletStub))
+            assertNotNull(walletInteractor.deleteTransaction(transactionStub))
 
-            verify(walletRepository).addWallet(walletStub)
+            verify(transactionsRepository).deleteTransaction(transactionStub)
         }
     }
 
@@ -131,35 +162,34 @@ class WalletInteractorTest {
         runBlocking {
             assertNotNull(walletInteractor.executeTransaction(transactionStub))
 
-            verify(transactionsRepository).addTransaction(transactionStub)
+            verify(transactionsRepository).addOrUpdateTransaction(transactionStub)
             verify(walletRepository).updateWalletAfterTransaction(transactionStub.walletId, if (transactionStub.type == TransactionTypes.IN) transactionStub.cost else -transactionStub.cost)
         }
     }
 
     @Test
-    fun updateWallet() {
+    fun executeTransactions() {
         runBlocking {
-            assertNotNull(walletInteractor.updateWallet(walletStub))
+            assertNotNull(walletInteractor.executeTransactions(transactionsListStub))
 
-            verify(walletRepository).updateWallet(walletStub)
+            verify(transactionsRepository).addOrUpdateTransactions(transactionsListStub)
+            verify(walletRepository).updateWalletAfterTransaction(transactionsListStub.first().id, walletInteractor.transactionsSum(transactionsListStub))
         }
     }
 
     @Test
-    fun updateCurrencyRate() {
+    fun getDeferredTransactions() {
         runBlocking {
-            assertNotNull(walletInteractor.updateCurrencyRate())
+            val periodTransactions = listOf(periodTransactionStub)
+            val cal = Calendar.getInstance()
+            cal.time = periodTransactionStub.time
+            cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
+            val time1 = cal.time
+            cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
+            val time2 = cal.time
+            val expectedTransactions = listOf(Transaction(0, time1, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"), Transaction(0, time2, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"))
 
-            verify(currencyRateRepository).updateCurrencyRate()
-        }
-    }
-
-    @Test
-    fun addPeriodTransactionAndGetId() {
-        runBlocking {
-            assertNotNull(walletInteractor.addPeriodTransaction(periodTransactionStub))
-
-            verify(transactionsRepository).addPeriodTransaction(periodTransactionStub)
+            assertEquals(expectedTransactions, walletInteractor.getDeferredTransactions(periodTransactions))
         }
     }
 
@@ -177,6 +207,24 @@ class WalletInteractorTest {
     }
 
     @Test
+    fun addPeriodTransactionAndGetId() {
+        runBlocking {
+            assertNotNull(walletInteractor.addPeriodTransaction(periodTransactionStub))
+
+            verify(transactionsRepository).addPeriodTransaction(periodTransactionStub)
+        }
+    }
+
+    @Test
+    fun deletePeriodTransaction() {
+        runBlocking {
+            assertNotNull(walletInteractor.deletePeriodTransaction(periodTransactionStub))
+
+            verify(transactionsRepository).deletePeriodTransaction(periodTransactionStub)
+        }
+    }
+
+    @Test
     fun executePeriodTransactions() {
         runBlocking {
             val expectedDeferredTransactions = walletInteractor.getDeferredTransactions(periodTransactionsListStub)
@@ -185,24 +233,63 @@ class WalletInteractorTest {
 
             assertNotNull(walletInteractor.executePeriodTransactions())
 
-            verify(transactionsRepository).addTransactions(expectedDeferredTransactions)
+            verify(transactionsRepository).getPeriodTransactions()
+            verify(transactionsRepository).addOrUpdateTransactions(expectedDeferredTransactions)
             verify(walletRepository).updateWalletAfterTransaction(transactionsListStub.first().walletId, expectedTransactionsSum)
         }
     }
 
     @Test
-    fun getDeferredTransactions() {
+    fun getTemplateTransactions() {
         runBlocking {
-            val periodTransactions = listOf(periodTransactionStub)
-            val cal = Calendar.getInstance()
-            cal.time = periodTransactionStub.time
-            cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
-            val time1 = cal.time
-            cal.add(Calendar.DAY_OF_MONTH, periodTransactionStub.period)
-            val time2 = cal.time
-            val expectedTransactions = listOf(Transaction(0, time1, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"), Transaction(0, time2, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto"))
+            val expectedTemplateTransactions = MutableLiveData<List<TemplateTransaction>>()
+            expectedTemplateTransactions.value = templateTransactionsListStub
+            `when`(transactionsRepository.getTemplateTransactions()).thenReturn(expectedTemplateTransactions)
 
-            assertEquals(expectedTransactions, walletInteractor.getDeferredTransactions(periodTransactions))
+            assertEquals(expectedTemplateTransactions, walletInteractor.getTemplateTransactions())
+
+            verify(transactionsRepository).getTemplateTransactions()
+        }
+    }
+
+    @Test
+    fun addTemplateTransaction() {
+        runBlocking {
+            assertNotNull(walletInteractor.addTemplateTransaction(templateTransactionStub))
+
+            verify(transactionsRepository).addTemplateTransaction(templateTransactionStub)
+        }
+    }
+
+    @Test
+    fun deleteTemplateTransaction() {
+        runBlocking {
+            assertNotNull(walletInteractor.deleteTemplateTransaction(templateTransactionStub))
+
+            verify(transactionsRepository).deleteTemplateTransaction(templateTransactionStub)
+        }
+    }
+
+    @Test
+    fun getCurrencyRate() {
+        runBlocking {
+            val expectedCurrencyRate = MutableLiveData<Float>()
+            expectedCurrencyRate.value = currencyRateStub
+            `when`(currencyRateRepository.getCurrencyRate()).thenReturn(expectedCurrencyRate)
+
+            assertEquals(expectedCurrencyRate, walletInteractor.getCurrencyRate())
+
+            verify(currencyRateRepository).getCurrencyRate()
+        }
+    }
+
+
+    @Test
+    fun updateCurrencyRate() {
+        runBlocking {
+            assertNotNull(walletInteractor.updateCurrencyRate())
+
+            verify(currencyRateRepository).updateCurrencyRate()
         }
     }
 

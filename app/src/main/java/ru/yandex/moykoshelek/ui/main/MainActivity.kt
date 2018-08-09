@@ -3,26 +3,23 @@ package ru.yandex.moykoshelek.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.Fragment
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.app_bar_main.*
 import org.jetbrains.anko.selector
-import org.json.JSONObject
 import ru.terrakok.cicerone.Router
 import ru.terrakok.cicerone.android.SupportAppNavigator
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.ui.transaction.AddTransactionFragment
-import ru.yandex.moykoshelek.ui.wallet.AddWalletFragment
+import ru.yandex.moykoshelek.ui.transaction.TransactionFragment
+import ru.yandex.moykoshelek.ui.wallet.WalletFragment
 import ru.yandex.moykoshelek.ui.balance.BalanceFragment
 import ru.yandex.moykoshelek.ui.menu.MenuFragment
-import ru.yandex.moykoshelek.interactors.WalletInteractor
 import ru.yandex.moykoshelek.ui.common.BaseActivity
 import ru.yandex.moykoshelek.ui.Screens
 import ru.yandex.moykoshelek.ui.about.AboutFragment
 import ru.yandex.moykoshelek.ui.common.BaseFragment
+import ru.yandex.moykoshelek.ui.report.ReportFragment
 import ru.yandex.moykoshelek.ui.settings.SettingsFragment
 import timber.log.Timber
 import javax.inject.Inject
@@ -71,10 +68,11 @@ class MainActivity : BaseActivity() {
         override fun createFragment(screenKey: String?, data: Any?): Fragment? = when (screenKey) {
             Screens.BALANCE_SCREEN -> BalanceFragment()
             Screens.MENU_SCREEN -> MenuFragment()
-            Screens.ADD_TRANSACTION_SCREEN -> AddTransactionFragment()
-            Screens.ADD_WALLET_SCREEN -> AddWalletFragment()
+            Screens.TRANSACTION_SCREEN -> TransactionFragment.getInstance(data as Int?)
+            Screens.WALLET_SCREEN -> WalletFragment()
             Screens.ABOUT_SCREEN -> AboutFragment()
             Screens.SETTINGS_SCREEN -> SettingsFragment()
+            Screens.REPORT_SCREEN -> ReportFragment()
             else -> null
         }
 
@@ -84,8 +82,8 @@ class MainActivity : BaseActivity() {
         val array = arrayOf(getString(R.string.wallet), getString(R.string.income_expense))
         selector(getString(R.string.add), array.toList()) { _, i ->
             when (i) {
-                0 -> router.navigateTo(Screens.ADD_WALLET_SCREEN)
-                1 -> router.navigateTo(Screens.ADD_TRANSACTION_SCREEN)
+                0 -> router.navigateTo(Screens.WALLET_SCREEN)
+                1 -> router.navigateTo(Screens.TRANSACTION_SCREEN, null)
             }
         }
     }

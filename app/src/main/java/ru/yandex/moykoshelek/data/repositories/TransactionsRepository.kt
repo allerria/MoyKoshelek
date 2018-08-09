@@ -16,12 +16,22 @@ class TransactionsRepository(
 
     fun getTransactionsByWalletId(walletId: Int): LiveData<List<Transaction>> = transactionDao.getAllByWalletId(walletId)
 
-    fun addTransaction(transaction: Transaction) {
-        transactionDao.insert(transaction)
+    fun getTransactionById(transactionId: Int): LiveData<Transaction> = transactionDao.getById(transactionId)
+
+    fun addOrUpdateTransaction(transaction: Transaction) {
+        transactionDao.insertOrUpdate(transaction)
     }
 
-    fun addTransactions(transactions: List<Transaction>) {
-        transactionDao.insert(transactions)
+    fun addOrUpdateTransactions(transactions: List<Transaction>) {
+        transactionDao.insertOrUpdate(transactions)
+    }
+
+    fun updateTransaction(transaction: Transaction) {
+        transactionDao.update(transaction)
+    }
+
+    fun deleteTransaction(transaction: Transaction) {
+        transactionDao.delete(transaction)
     }
 
     fun getPeriodTransactions(): List<PeriodTransaction> = periodTransactionDao.getAll()
@@ -32,9 +42,17 @@ class TransactionsRepository(
         periodTransactionDao.insert(periodTransaction)
     }
 
+    fun deletePeriodTransaction(periodTransaction: PeriodTransaction) {
+        periodTransactionDao.delete(periodTransaction)
+    }
+
     fun getTemplateTransactions(): LiveData<List<TemplateTransaction>> = templateTransactionDao.getAll()
 
     fun addTemplateTransaction(templateTransaction: TemplateTransaction) {
         templateTransactionDao.insert(templateTransaction)
+    }
+
+    fun deleteTemplateTransaction(templateTransaction: TemplateTransaction) {
+        templateTransactionDao.delete(templateTransaction)
     }
 }

@@ -16,8 +16,7 @@ import javax.inject.Inject
 class BalanceViewModel @Inject constructor(private val walletInteractor: WalletInteractor) : ViewModel() {
 
     val wallets = async { walletInteractor.getWallets() }
-
-    fun getTransactions(walletId: Int) = async { walletInteractor.getTransactions(walletId) }
+    val transactions = async { walletInteractor.getTransactions() }
 
     fun updateCurrencyRate() = launch {
         walletInteractor.updateCurrencyRate()

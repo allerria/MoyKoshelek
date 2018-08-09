@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.card_view.view.*
 import kotlinx.android.synthetic.main.fragment_balance.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
+import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.extensions.currencySign
 import ru.yandex.moykoshelek.ui.common.BaseFragment
@@ -33,6 +33,9 @@ class BalanceFragment : BaseFragment() {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
+
+    @Inject
+    lateinit var router: Router
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -64,15 +67,23 @@ class BalanceFragment : BaseFragment() {
                         }
                     }
                 }
-                observeTransactions(cardAdapter.getItem(cards_viewpager.currentItem).id)
+                changeWallet(cardAdapter.getItem(cards_viewpager.currentItem).id)
             }
         })
 
+        viewModel.transactions.await().observe(this@BalanceFragment, Observer { transactions ->
+            if (transactions != null) {
+                transactionAdapter.setTransactions(transactions)
+                if (cardAdapter.count > 0) {
+                    changeWallet(cardAdapter.getItem(cards_viewpager.currentItem).id)
+                }
+            }
+        })
     }
 
     private fun setupRecyclerView() {
         transaction_rv.layoutManager = LinearLayoutManager(context, LinearLayout.VERTICAL, false)
-        transactionAdapter = MainListAdapter(context)
+        transactionAdapter = MainListAdapter({ navigateToEditTransaction(it) })
         transaction_rv.adapter = transactionAdapter
     }
 
@@ -87,25 +98,21 @@ class BalanceFragment : BaseFragment() {
             addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                 override fun onPageScrollStateChanged(p0: Int) {}
 
-                override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {
-                    runBlocking {
-                        viewModel.getTransactions(cardAdapter.getItem(p0).id).await().removeObservers(this@BalanceFragment)
-                    }
-                }
+                override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {}
 
                 override fun onPageSelected(p0: Int) {
-                    observeTransactions(cardAdapter.getItem(p0).id)
+                    changeWallet(cardAdapter.getItem(p0).id)
                 }
             })
         }
     }
 
-    private fun observeTransactions(id: Int) = launch(UI) {
-        viewModel.getTransactions(id).await().observe(this@BalanceFragment, Observer { it ->
-            if (it != null) {
-                transactionAdapter.setData(it)
-            }
-        })
+    private fun changeWallet(walletId: Int) {
+        transactionAdapter.setData(walletId)
+    }
+
+    private fun navigateToEditTransaction(transactionId: Int) {
+        router.navigateTo(Screens.TRANSACTION_SCREEN, transactionId)
     }
 
 }

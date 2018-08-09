@@ -65,4 +65,15 @@ class WalletDaoTest: DbTest() {
             assertEquals(expectedTransaction, getValue(walletDao.getById(expectedTransaction.id)))
         }
     }
+
+    @Test
+    fun delete() {
+        runBlocking {
+            assertNotNull(walletDao.insert(walletStub))
+
+            assertNotNull(walletDao.delete(walletStub))
+
+            assertEquals(listOf<List<Wallet>>(), getValue(walletDao.getAll()))
+        }
+    }
 }

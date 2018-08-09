@@ -43,4 +43,15 @@ class PeriodTranDaoTest: DbTest() {
         }
     }
 
+    @Test
+    fun delete() {
+        runBlocking {
+            assertNotNull(periodTransactionDao.insert(periodTransactionStub))
+
+            assertNotNull(periodTransactionDao.delete(periodTransactionStub))
+
+            assertEquals(listOf<List<PeriodTransaction>>(), periodTransactionDao.getAll())
+        }
+    }
+
 }

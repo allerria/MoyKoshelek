@@ -4,15 +4,13 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.text.Editable
 import android.view.View
 import android.widget.*
-import kotlinx.android.synthetic.main.fragment_add_transaction.*
+import kotlinx.android.synthetic.main.fragment_transaction.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.forEachChild
 import org.jetbrains.anko.sdk25.coroutines.onCheckedChange
-import org.jetbrains.anko.sdk25.coroutines.onItemSelectedListener
 import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.ui.balance.CardsPagerAdapter
@@ -26,25 +24,37 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class AddTransactionFragment : BaseFragment() {
+class TransactionFragment : BaseFragment() {
 
-    override val layoutRes = R.layout.fragment_add_transaction
-    override val TAG = Screens.ADD_TRANSACTION_SCREEN
+    override val layoutRes = R.layout.fragment_transaction
+    override val TAG = Screens.TRANSACTION_SCREEN
+
+    companion object {
+        fun getInstance(transactionId: Int?) = TransactionFragment().apply {
+            if (transactionId != null) {
+                arguments = Bundle().apply { putInt(TAG, transactionId) }
+            }
+        }
+    }
 
     @Inject
     lateinit var router: Router
 
     @Inject
-    lateinit var viewModel: AddTransactionViewModel
+    lateinit var viewModel: TransactionViewModel
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
 
     lateinit var cardAdapter: CardsPagerAdapter
 
+    private var transactionId: Int? = null
+    private var transaction = Transaction()
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, factory).get(AddTransactionViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, factory).get(TransactionViewModel::class.java)
+        transactionId = arguments?.getInt(TAG)
         initObservers()
     }
 
@@ -74,7 +84,7 @@ class AddTransactionFragment : BaseFragment() {
                 template_name_edit_text.visibility = View.GONE
             }
         }
-        template_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        template_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
 
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
@@ -82,33 +92,41 @@ class AddTransactionFragment : BaseFragment() {
             }
 
         }
-        submit_button.setOnClickListener { createTransaction() }
+        submit_button.setOnClickListener { createOrUpdateTransaction(transaction) }
     }
 
-    private fun createTransaction() {
+    private fun createOrUpdateTransaction(transaction: Transaction) {
         add_transaction_layout.forEachChild {
             if (it.visibility == View.VISIBLE && it is EditText && it.text.isEmpty()) {
                 it.error = getString(R.string.fill_field)
                 return
             }
         }
-        val transaction = Transaction()
+        if (period_edit_text.text.toString().contains(".")) {
+            period_edit_text.error = getString(R.string.period_must_be_int)
+            return
+        }
         with(transaction) {
+            val oldTransaction = this.copy()
             cost = transaction_amount.text.toString().toDouble()
             placeholder = getString(R.string.place_example)
             type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
             val wallet = cardAdapter.getItem(cards_viewpager.currentItem)
             currency = wallet.currency
-            walletId = wallet.id
-            date = getCurrentDateTime()
-            category = transaction_category.selectedItem.toString()
             var period: Int? = null
-            if (period_check_box.isChecked) {
-                period = period_edit_text.text.toString().toInt()
-                viewModel.executePeriodTransaction(this, period)
-            } else {
-
-                viewModel.executeTransaction(this)
+            category = transaction_category.selectedItem.toString()
+            walletId = wallet.id
+            when {
+                period_check_box.isChecked -> {
+                    period = period_edit_text.text.toString().toInt()
+                    viewModel.executePeriodTransaction(this, period)
+                }
+                id > 0 -> {
+                    viewModel.executeAndUpdateTransaction(this, oldTransaction)
+                }
+                else -> {
+                    viewModel.executeTransaction(this)
+                }
             }
             val name = template_name_edit_text.text.toString()
             if (template_check_box.isChecked) {
@@ -131,19 +149,47 @@ class AddTransactionFragment : BaseFragment() {
     }
 
     private fun initObservers() = launch(UI) {
-        viewModel.wallets.await().observe(this@AddTransactionFragment, Observer { wallets ->
+        viewModel.wallets.await().observe(this@TransactionFragment, Observer { wallets ->
             if (wallets != null) {
                 cardAdapter.setData(wallets)
             }
         })
 
-        viewModel.templateTransactions.await().observe(this@AddTransactionFragment, Observer { templateTransactions ->
+        viewModel.templateTransactions.await().observe(this@TransactionFragment, Observer { templateTransactions ->
             if (templateTransactions != null && templateTransactions.isNotEmpty()) {
                 template_spinner.adapter = ArrayAdapter<String>(context, android.R.layout.simple_selectable_list_item, listOf(getString(R.string.select_template)) + (templateTransactions.map { it.name }))
             } else {
                 template_spinner.visibility = View.GONE
             }
         })
+
+        if (transactionId != null) {
+            viewModel.getTransactionById(transactionId!!).await().observe(this@TransactionFragment, Observer { tranasction ->
+                if (tranasction != null) {
+                    setTransaction(tranasction)
+                }
+            })
+        }
+    }
+
+    private fun setTransaction(transaction: Transaction) {
+        this.transaction = transaction
+        if (transaction.id > 0) {
+            template_spinner.visibility = View.GONE
+            period_check_box.visibility = View.GONE
+            period_text_view.visibility = View.GONE
+        }
+        cards_viewpager.currentItem = cardAdapter.itemPositionByWalletId(transaction.walletId)
+        var categoryArrayId = 0
+        if (transaction.type == TransactionTypes.IN) {
+            in_radio.isChecked = true
+            categoryArrayId = R.array.transaction_income_categories
+        } else {
+            out_radio.isChecked = true
+            categoryArrayId = R.array.transaction_expense_categories
+        }
+        transaction_category.setSelection(resources.getStringArray(categoryArrayId).indexOf(transaction.category))
+        transaction_amount.setText(transaction.cost.toString())
     }
 
     private fun setTemplate(templateName: String) = launch(UI) {
@@ -151,23 +197,19 @@ class AddTransactionFragment : BaseFragment() {
         if (templates != null) {
             val template = templates.find { it.name == templateName }
             if (template != null) {
-                cards_viewpager.currentItem = cardAdapter.itemPositionByWalletId(template.walletId)
-                var categoryArrayId = 0
-                if (template.type == TransactionTypes.IN) {
-                    in_radio.isChecked = true
-                    categoryArrayId = R.array.transaction_income_categories
-                } else {
-                    out_radio.isChecked = true
-                    categoryArrayId = R.array.transaction_expense_categories
-                }
-                transaction_category.setSelection(resources.getStringArray(categoryArrayId).indexOf(template.category))
-                transaction_amount.setText(template.cost.toString())
+                template_check_box.isChecked = false
+                template_name_edit_text.setText("")
+
+                val transaction = Transaction(0, template.time, template.cost, template.currency, template.placeholder, template.type, template.walletId, template.category)
+                setTransaction(transaction)
+
                 if (template.period != null) {
                     period_check_box.isChecked = true
                     period_edit_text.visibility = View.VISIBLE
                     period_edit_text.setText(template.period.toString())
                 } else {
                     period_check_box.isChecked = false
+                    period_edit_text.setText("")
                     period_edit_text.visibility = View.GONE
                 }
             }

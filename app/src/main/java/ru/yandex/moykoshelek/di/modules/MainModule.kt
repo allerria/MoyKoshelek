@@ -6,8 +6,8 @@ import ru.yandex.moykoshelek.ui.about.AboutFragment
 import ru.yandex.moykoshelek.ui.balance.BalanceFragment
 import ru.yandex.moykoshelek.ui.menu.MenuFragment
 import ru.yandex.moykoshelek.ui.settings.SettingsFragment
-import ru.yandex.moykoshelek.ui.transaction.AddTransactionFragment
-import ru.yandex.moykoshelek.ui.wallet.AddWalletFragment
+import ru.yandex.moykoshelek.ui.transaction.TransactionFragment
+import ru.yandex.moykoshelek.ui.wallet.WalletFragment
 
 @Module
 abstract class MainModule {
@@ -19,10 +19,10 @@ abstract class MainModule {
     abstract fun bindMenuFragment(): MenuFragment
 
     @ContributesAndroidInjector
-    abstract fun bindAddWalletFragment(): AddWalletFragment
+    abstract fun bindAddWalletFragment(): WalletFragment
 
     @ContributesAndroidInjector
-    abstract fun bindAddTransactionFragment(): AddTransactionFragment
+    abstract fun bindAddTransactionFragment(): TransactionFragment
 
     @ContributesAndroidInjector
     abstract fun bindAboutFragment(): AboutFragment

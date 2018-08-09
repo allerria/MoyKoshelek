@@ -14,23 +14,34 @@ import ru.yandex.moykoshelek.util.TestUtils.getValue
 
 class TemplateTranDaoTest: DbTest() {
 
-    private lateinit var templateTranDaoTest: TemplateTransactionDao
+    private lateinit var templateTranDao: TemplateTransactionDao
     private val templateTransactionStub = TemplateTransaction(1, "template", null, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
     private val templateTransactionStub1 = TemplateTransaction(2, "template", 7, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
     private val templateTransactionsListStub = listOf(templateTransactionStub, templateTransactionStub1)
 
     @Before
     fun setUp() {
-        templateTranDaoTest = appDatabase.templateTransactionDao
+        templateTranDao = appDatabase.templateTransactionDao
     }
 
     @Test
     fun insertAndGetAll() {
         runBlocking {
-            assertNotNull(templateTranDaoTest.insert(templateTransactionStub))
-            assertNotNull(templateTranDaoTest.insert(templateTransactionStub1))
+            assertNotNull(templateTranDao.insert(templateTransactionStub))
+            assertNotNull(templateTranDao.insert(templateTransactionStub1))
 
-            assertEquals(templateTransactionsListStub, getValue(templateTranDaoTest.getAll()))
+            assertEquals(templateTransactionsListStub, getValue(templateTranDao.getAll()))
+        }
+    }
+
+    @Test
+    fun delete() {
+        runBlocking {
+            assertNotNull(templateTranDao.insert(templateTransactionStub))
+
+            assertNotNull(templateTranDao.delete(templateTransactionStub))
+
+            assertEquals(listOf<List<TemplateTransaction>>(), getValue(templateTranDao.getAll()))
         }
     }
 

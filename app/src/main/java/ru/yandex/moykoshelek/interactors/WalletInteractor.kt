@@ -1,9 +1,6 @@
 package ru.yandex.moykoshelek.interactors
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.TemplateTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
@@ -24,22 +21,42 @@ class WalletInteractor @Inject constructor(
 
     fun getWallets(): LiveData<List<Wallet>> = walletRepository.getWallets()
 
-    fun getTransactions(): LiveData<List<Transaction>> = transactionsRepository.getTransactions()
-
-    fun getTransactions(walletId: Int): LiveData<List<Transaction>> = transactionsRepository.getTransactionsByWalletId(walletId)
-
-    fun getCurrencyRate(): LiveData<Float> = currencyRateRepository.getCurrencyRate()
-
     fun addWallet(wallet: Wallet) {
         walletRepository.addWallet(wallet)
     }
 
-    fun addTransaction(transaction: Transaction) {
-        transactionsRepository.addTransaction(transaction)
+    fun updateWallet(wallet: Wallet) {
+        walletRepository.updateWallet(wallet)
+    }
+
+    fun updateWalletBalance(walletId: Int, transactionCost: Double) {
+        walletRepository.updateWalletAfterTransaction(walletId, transactionCost)
+    }
+
+    fun deleteWallet(wallet: Wallet) {
+        walletRepository.deleteWallet(wallet)
+    }
+
+    fun getTransactions(): LiveData<List<Transaction>> = transactionsRepository.getTransactions()
+
+    fun getTransactions(walletId: Int): LiveData<List<Transaction>> = transactionsRepository.getTransactionsByWalletId(walletId)
+
+    fun getTransactionById(transactionId: Int): LiveData<Transaction> = transactionsRepository.getTransactionById(transactionId)
+
+    fun addOrUpdateTransaction(transaction: Transaction) {
+        transactionsRepository.addOrUpdateTransaction(transaction)
+    }
+
+    fun updateTransaction(transaction: Transaction) {
+        transactionsRepository.updateTransaction(transaction)
+    }
+
+    fun deleteTransaction(transaction: Transaction) {
+        transactionsRepository.deleteTransaction(transaction)
     }
 
     fun executeTransaction(transaction: Transaction) {
-        transactionsRepository.addTransaction(transaction)
+        transactionsRepository.addOrUpdateTransaction(transaction)
         var transactionCost = transaction.cost
         if (transaction.type == TransactionTypes.OUT) {
             transactionCost *= -1
@@ -49,30 +66,10 @@ class WalletInteractor @Inject constructor(
 
     fun executeTransactions(transactions: List<Transaction>) {
         if (transactions.isNotEmpty()) {
-            transactionsRepository.addTransactions(transactions)
+            transactionsRepository.addOrUpdateTransactions(transactions)
             walletRepository.updateWalletAfterTransaction(transactions.first().walletId, transactionsSum(transactions))
         }
     }
-
-    fun transactionsSum(transactions: List<Transaction>): Double {
-        var sum = 0.0
-        transactions.forEach {
-            sum += if (it.type == TransactionTypes.IN) it.cost else -it.cost
-        }
-        return sum
-    }
-
-    fun updateWallet(wallet: Wallet) {
-        walletRepository.updateWallet(wallet)
-    }
-
-    fun updateCurrencyRate() {
-        currencyRateRepository.updateCurrencyRate()
-    }
-
-    fun addPeriodTransaction(periodTransaction: PeriodTransaction) = transactionsRepository.addPeriodTransaction(periodTransaction)
-
-    fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction = transactionsRepository.getPeriodTransaction(periodTransactionId)
 
     fun getDeferredTransactions(periodTransactions: List<PeriodTransaction>): List<Transaction> {
         val toExecuteTransactions = mutableListOf<Transaction>()
@@ -91,10 +88,18 @@ class WalletInteractor @Inject constructor(
         return toExecuteTransactions
     }
 
+    fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction = transactionsRepository.getPeriodTransaction(periodTransactionId)
+
+    fun addPeriodTransaction(periodTransaction: PeriodTransaction) = transactionsRepository.addPeriodTransaction(periodTransaction)
+
     fun executePeriodTransactions() {
         val periodTransactions = transactionsRepository.getPeriodTransactions()
         val deferredTransactions = getDeferredTransactions(periodTransactions)
         executeTransactions(deferredTransactions)
+    }
+
+    fun deletePeriodTransaction(periodTransaction: PeriodTransaction) {
+        transactionsRepository.deletePeriodTransaction(periodTransaction)
     }
 
     fun getTemplateTransactions(): LiveData<List<TemplateTransaction>> = transactionsRepository.getTemplateTransactions()
@@ -102,4 +107,23 @@ class WalletInteractor @Inject constructor(
     fun addTemplateTransaction(templateTransaction: TemplateTransaction) {
         transactionsRepository.addTemplateTransaction(templateTransaction)
     }
+
+    fun deleteTemplateTransaction(templateTransaction: TemplateTransaction) {
+        transactionsRepository.deleteTemplateTransaction(templateTransaction)
+    }
+
+    fun getCurrencyRate(): LiveData<Float> = currencyRateRepository.getCurrencyRate()
+
+    fun updateCurrencyRate() {
+        currencyRateRepository.updateCurrencyRate()
+    }
+
+    fun transactionsSum(transactions: List<Transaction>): Double {
+        var sum = 0.0
+        transactions.forEach {
+            sum += if (it.type == TransactionTypes.IN) it.cost else -it.cost
+        }
+        return sum
+    }
+
 }
