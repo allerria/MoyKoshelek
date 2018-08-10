@@ -5,7 +5,9 @@ import dagger.android.ContributesAndroidInjector
 import ru.yandex.moykoshelek.ui.about.AboutFragment
 import ru.yandex.moykoshelek.ui.balance.BalanceFragment
 import ru.yandex.moykoshelek.ui.menu.MenuFragment
+import ru.yandex.moykoshelek.ui.report.ReportFragment
 import ru.yandex.moykoshelek.ui.settings.SettingsFragment
+import ru.yandex.moykoshelek.ui.transaction.PeriodTemplateTransactionsFragment
 import ru.yandex.moykoshelek.ui.transaction.TransactionFragment
 import ru.yandex.moykoshelek.ui.transaction.TransactionsFragment
 import ru.yandex.moykoshelek.ui.wallet.WalletFragment
@@ -37,5 +39,11 @@ abstract class MainModule {
 
     @ContributesAndroidInjector
     abstract fun bindTransactionsFragment(): TransactionsFragment
+
+    @ContributesAndroidInjector
+    abstract fun bindPeriodTemplateTransactionsFragment(): PeriodTemplateTransactionsFragment
+
+    @ContributesAndroidInjector
+    abstract fun bindReportFragment(): ReportFragment
 
 }

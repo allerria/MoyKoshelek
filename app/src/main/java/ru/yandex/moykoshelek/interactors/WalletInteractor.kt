@@ -1,16 +1,21 @@
 package ru.yandex.moykoshelek.interactors
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Transformations
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.TemplateTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
+import ru.yandex.moykoshelek.data.entities.Report
+import ru.yandex.moykoshelek.data.entities.ReportItem
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.data.repositories.CurrencyRateRepository
 import ru.yandex.moykoshelek.data.repositories.TransactionsRepository
 import ru.yandex.moykoshelek.data.repositories.WalletRepository
 import ru.yandex.moykoshelek.extensions.getCurrentDateTime
 import ru.yandex.moykoshelek.util.TestUtils.getValueFromLiveData
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
@@ -41,6 +46,8 @@ class WalletInteractor @Inject constructor(
     }
 
     fun getTransactions(): LiveData<List<Transaction>> = transactionsRepository.getTransactions()
+
+    fun getTransactions(from: Date, to: Date): LiveData<List<Transaction>> = transactionsRepository.getTransactions(from, to)
 
     fun getTransactions(walletId: Int): LiveData<List<Transaction>> = transactionsRepository.getTransactionsByWalletId(walletId)
 
@@ -137,6 +144,27 @@ class WalletInteractor @Inject constructor(
             sum += if (it.type == TransactionTypes.IN) it.cost else -it.cost
         }
         return sum
+    }
+
+    fun report(from: Date, to: Date): LiveData<Report> = Transformations.switchMap(transactionsRepository.getTransactions(from, to)) { transactions ->
+        Timber.d(transactions.toString())
+        val currencyRate = getValueFromLiveData(currencyRateRepository.getCurrencyRate())
+        val report = MutableLiveData<Report>()
+        val reports = mutableListOf<ReportItem>()
+        transactions.groupBy { it.category }.forEach { category, list ->
+            val income = list.filter { it.type == TransactionTypes.IN }.sumByDouble { it.cost }
+            val expense = list.filter { it.type == TransactionTypes.OUT }.sumByDouble { it.cost }
+            reports.add(ReportItem(category, income, expense, income * currencyRate, expense * currencyRate))
+        }
+        report.value = Report(
+                reports,
+                reports.sumByDouble { it.income },
+                reports.sumByDouble { it.expense },
+                reports.sumByDouble { it.incomeRub },
+                reports.sumByDouble { it.expenseRub },
+                from,
+                to)
+        report
     }
 
 }

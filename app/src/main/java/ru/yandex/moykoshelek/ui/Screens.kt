@@ -11,4 +11,5 @@ object Screens {
     const val REPORT_SCREEN = "reportFragment"
     const val WALLETS_SCREEN = "walletsFragment"
     const val TRANSACTIONS_SCREEN = "transactionsFragment"
+    const val PERIOD_TEMPLATE_SCREEN = "periodTemplateFragment"
 }

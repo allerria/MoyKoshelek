@@ -66,8 +66,9 @@ class BalanceFragment : BaseFragment() {
         }
         initWalletsRecyclerView()
         settings_button.setOnClickListener { router.navigateTo(Screens.WALLETS_SCREEN) }
-        add_transaction_fab.setOnClickListener { router.navigateTo(Screens.TRANSACTION_SCREEN, arrayListOf(ActionTypes.ADD_TRANSACTION, currentWalletId, currentWalletCurrency)) }
+        add_transaction_fab.setOnClickListener { navigateToAddTransactionOrWallet() }
         show_all_transactions.setOnClickListener { router.navigateTo(Screens.TRANSACTIONS_SCREEN, currentWalletId) }
+        show_all_period_transactions.setOnClickListener { router.navigateTo(Screens.PERIOD_TEMPLATE_SCREEN) }
         Timber.d("onViewCreated")
     }
 
@@ -197,6 +198,14 @@ class BalanceFragment : BaseFragment() {
 
     private fun navigateToEditAnyTransaction(actionType: Int, transactionId: Int) {
         router.navigateTo(Screens.TRANSACTION_SCREEN, arrayListOf(actionType, currentWalletId, currentWalletCurrency, transactionId))
+    }
+
+    private fun navigateToAddTransactionOrWallet() = launch(UI) {
+        if (viewModel.wallets.await().value!!.isNotEmpty()) {
+            router.navigateTo(Screens.TRANSACTION_SCREEN, arrayListOf(ActionTypes.ADD_TRANSACTION, currentWalletId, currentWalletCurrency))
+        } else {
+            router.navigateTo(Screens.WALLET_SCREEN)
+        }
     }
 
 }

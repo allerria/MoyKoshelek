@@ -5,6 +5,7 @@ import ru.yandex.moykoshelek.data.datasource.local.dao.*
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.TemplateTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
+import java.util.*
 
 class TransactionsRepository(
         private val transactionDao: TransactionDao,
@@ -13,6 +14,8 @@ class TransactionsRepository(
 ) {
 
     fun getTransactions(): LiveData<List<Transaction>> = transactionDao.getAll()
+
+    fun getTransactions(from: Date, to: Date): LiveData<List<Transaction>> = transactionDao.getAll(from, to)
 
     fun getTransactionsByWalletId(walletId: Int): LiveData<List<Transaction>> = transactionDao.getAllByWalletId(walletId)
 

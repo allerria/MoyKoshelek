@@ -23,6 +23,7 @@ import ru.yandex.moykoshelek.ui.about.AboutFragment
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.report.ReportFragment
 import ru.yandex.moykoshelek.ui.settings.SettingsFragment
+import ru.yandex.moykoshelek.ui.transaction.PeriodTemplateTransactionsFragment
 import ru.yandex.moykoshelek.ui.transaction.TransactionsFragment
 import ru.yandex.moykoshelek.ui.wallet.WalletsFragment
 import timber.log.Timber
@@ -44,11 +45,6 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(toolbar)
         initToolbarIcon()
         supportFragmentManager.addOnBackStackChangedListener { initToolbarIcon() }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -78,6 +74,7 @@ class MainActivity : BaseActivity() {
             Screens.ABOUT_SCREEN -> AboutFragment()
             Screens.SETTINGS_SCREEN -> SettingsFragment()
             Screens.REPORT_SCREEN -> ReportFragment()
+            Screens.PERIOD_TEMPLATE_SCREEN -> PeriodTemplateTransactionsFragment()
             else -> null
         }
 
@@ -94,13 +91,18 @@ class MainActivity : BaseActivity() {
             Timber.d((supportFragmentManager.fragments.first() as BaseFragment).TAG)
             when ((supportFragmentManager.fragments.first() as BaseFragment).TAG) {
                 Screens.BALANCE_SCREEN -> {
+                    supportActionBar?.setDisplayHomeAsUpEnabled(false)
+                    supportActionBar?.setDisplayShowHomeEnabled(false)
                     toolbar.setNavigationIcon(R.drawable.ic_hamburger)
                 }
                 else -> {
-                    toolbar.setNavigationIcon(R.drawable.ic_exit)
+                    supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                    supportActionBar?.setDisplayShowHomeEnabled(true)
                 }
             }
         } else {
+            supportActionBar?.setDisplayHomeAsUpEnabled(false)
+            supportActionBar?.setDisplayShowHomeEnabled(false)
             toolbar.setNavigationIcon(R.drawable.ic_hamburger)
         }
     }

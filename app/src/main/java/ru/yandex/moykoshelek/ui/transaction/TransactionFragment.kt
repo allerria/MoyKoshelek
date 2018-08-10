@@ -62,6 +62,7 @@ class TransactionFragment : BaseFragment() {
     private var templateTransaction: TemplateTransaction? = null
     private var actionType = 0
     private var walletPosition: Int = -1
+    private var lastSelectedWallet: String = ""
 
     private var dialogClickListener: DialogInterface.OnClickListener = DialogInterface.OnClickListener { dialog, which ->
         when (which) {
@@ -97,7 +98,7 @@ class TransactionFragment : BaseFragment() {
     private fun initObservers() = launch(UI) {
 
         viewModel.wallets.await().observe(this@TransactionFragment, Observer { wallets ->
-            if (wallets != null) {
+            if (wallets != null && wallets.isNotEmpty()) {
                 initWalletSpinner(wallets)
             }
         })
@@ -161,8 +162,11 @@ class TransactionFragment : BaseFragment() {
         }
         with(transaction!!) {
             launch {
-                transaction!!.walletId = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().id
-                transaction!!.currency = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().currency
+                val tmpWallet = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await()
+                if (tmpWallet != null) {
+                    transaction!!.walletId = tmpWallet.id
+                    transaction!!.currency = tmpWallet.currency
+                }
                 cost = transaction_amount.text.toString().toDouble()
                 type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
                 var period: Int? = null
@@ -190,8 +194,11 @@ class TransactionFragment : BaseFragment() {
         }
         with(transaction!!) {
             launch {
-                transaction!!.walletId = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().id
-                transaction!!.currency = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().currency
+                val tmpWallet = viewModel.getWalletByTag(lastSelectedWallet).await()
+                if (tmpWallet != null) {
+                    transaction!!.walletId = tmpWallet.id
+                    transaction!!.currency = tmpWallet.currency
+                }
                 val oldTransaction = transaction!!.copy()
                 cost = transaction_amount.text.toString().toDouble()
                 type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
@@ -214,18 +221,21 @@ class TransactionFragment : BaseFragment() {
         }
         with(periodTransaction!!) {
             launch {
-                periodTransaction!!.walletId = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().id
-                periodTransaction!!.currency = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().currency
-                val oldPeriodTransaction = periodTransaction!!.copy()
-                cost = transaction_amount.text.toString().toDouble()
-                type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
-                period = period_edit_text.text.toString().toInt()
-                category = transaction_category.selectedItem.toString()
-                viewModel.updatePeriodTransaction(periodTransaction!!, oldPeriodTransaction)
-                if (template_check_box.isChecked) {
-                    val name = template_name_edit_text.text.toString()
-                    viewModel.createTemplateTransaction(Transaction(0, getCurrentDateTime(), periodTransaction!!.cost, periodTransaction!!.currency, periodTransaction!!.type, periodTransaction!!.walletId, periodTransaction!!.category), name, period)
+                val tmpWallet = viewModel.getWalletByTag(lastSelectedWallet).await()
+                if (tmpWallet != null) {
+                    periodTransaction!!.walletId = tmpWallet.id
+                    periodTransaction!!.currency = tmpWallet.currency
                 }
+            }
+            val oldPeriodTransaction = periodTransaction!!.copy()
+            cost = transaction_amount.text.toString().toDouble()
+            type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
+            period = period_edit_text.text.toString().toInt()
+            category = transaction_category.selectedItem.toString()
+            viewModel.updatePeriodTransaction(periodTransaction!!, oldPeriodTransaction)
+            if (template_check_box.isChecked) {
+                val name = template_name_edit_text.text.toString()
+                viewModel.createTemplateTransaction(Transaction(0, getCurrentDateTime(), periodTransaction!!.cost, periodTransaction!!.currency, periodTransaction!!.type, periodTransaction!!.walletId, periodTransaction!!.category), name, period)
             }
         }
         showSuccessToast()
@@ -238,21 +248,24 @@ class TransactionFragment : BaseFragment() {
         }
         with(templateTransaction!!) {
             launch {
-                templateTransaction!!.walletId = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().id
-                templateTransaction!!.currency = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().currency
-                val oldTemplateTransaction = templateTransaction!!.copy()
-                cost = transaction_amount.text.toString().toDouble()
-                type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
-                var period: Int? = null
-                if (period_check_box.isChecked) {
-                    period = period_edit_text.text.toString().toInt()
-                } else {
-                    period = null
+                val tmpWallet = viewModel.getWalletByTag(lastSelectedWallet).await()
+                if (tmpWallet != null) {
+                    templateTransaction!!.walletId = tmpWallet.id
+                    templateTransaction!!.currency = tmpWallet.currency
                 }
-                category = transaction_category.selectedItem.toString()
-                name = template_name_edit_text.text.toString()
-                viewModel.updateTemplateTransaction(templateTransaction!!, oldTemplateTransaction)
             }
+            val oldTemplateTransaction = templateTransaction!!.copy()
+            cost = transaction_amount.text.toString().toDouble()
+            type = if (in_radio.isChecked) TransactionTypes.IN else TransactionTypes.OUT
+            var period: Int? = null
+            if (period_check_box.isChecked) {
+                period = period_edit_text.text.toString().toInt()
+            } else {
+                period = null
+            }
+            category = transaction_category.selectedItem.toString()
+            name = template_name_edit_text.text.toString()
+            viewModel.updateTemplateTransaction(templateTransaction!!, oldTemplateTransaction)
         }
         showSuccessToast()
         router.exit()
@@ -337,6 +350,7 @@ class TransactionFragment : BaseFragment() {
         }
         if (wallet_spinner.selectedItem.toString() == getString(R.string.choose_wallet)) {
             showToast(getString(R.string.choose_wallet))
+            return false
         }
         return true
     }
@@ -428,7 +442,7 @@ class TransactionFragment : BaseFragment() {
         }
     }
 
-    private fun initWalletSpinner(wallets: List<Wallet>) {
+    private fun initWalletSpinner(wallets: List<Wallet>) = launch(UI) {
         val walletStringArray = mutableListOf<String>()
         if (anyTransactionId != null) {
             walletStringArray.addAll(listOf(getString(R.string.choose_wallet)).plus(wallets.filter { walletCurrency == it.currency }.map { "${it.name}-${it.balance.formatMoney(it.currency)}" }))
@@ -443,6 +457,14 @@ class TransactionFragment : BaseFragment() {
                 delay(166)
                 wallet_spinner.setSelection(walletPosition)
             }
+        }
+        wallet_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+
+            override fun onItemSelected(adapterView: AdapterView<*>?, itemView: View?, position: Int, p3: Long) {
+                lastSelectedWallet = adapterView?.getItemAtPosition(position).toString()
+            }
+
         }
     }
 

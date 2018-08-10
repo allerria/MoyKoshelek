@@ -7,6 +7,7 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import ru.yandex.moykoshelek.di.ViewModelKey
 import ru.yandex.moykoshelek.ui.balance.BalanceViewModel
+import ru.yandex.moykoshelek.ui.report.ReportViewModel
 import ru.yandex.moykoshelek.ui.settings.SettingsViewModel
 import ru.yandex.moykoshelek.ui.transaction.TransactionViewModel
 import ru.yandex.moykoshelek.ui.wallet.WalletViewModel
@@ -36,4 +37,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(SettingsViewModel::class)
     abstract fun bindSettingsViewModel(settingsViewModel: SettingsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ReportViewModel::class)
+    abstract fun bindReportViewModel(reportViewModel: ReportViewModel): ViewModel
 }

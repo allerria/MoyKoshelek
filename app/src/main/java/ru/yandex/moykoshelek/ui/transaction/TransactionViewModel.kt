@@ -19,6 +19,8 @@ class TransactionViewModel @Inject constructor(private val walletInteractor: Wal
 
     val transactions = async { walletInteractor.getTransactions() }
 
+    val periodTransactions = async { walletInteractor.getPeriodTransactions() }
+
     fun executeTransaction(transaction: Transaction) = launch {
         walletInteractor.executeTransaction(transaction)
     }
@@ -103,6 +105,6 @@ class TransactionViewModel @Inject constructor(private val walletInteractor: Wal
         walletInteractor.deleteTemplateTransaction(templateTransaction)
     }
 
-    fun getWalletByTag(tag: String) = async { wallets.await().value!!.find { "${it.name}-${it.balance.formatMoney(it.currency)}" == tag }!! }
+    fun getWalletByTag(tag: String) = async { wallets.await().value!!.find { "${it.name}-${it.balance.formatMoney(it.currency)}" == tag } }
 
 }

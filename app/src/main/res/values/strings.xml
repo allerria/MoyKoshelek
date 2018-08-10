@@ -77,6 +77,11 @@
     <string name="are_you_sure_to_delete">Вы точно хотите удалить?</string>
     <string name="wallet_balance">Баланс кошелька</string>
     <string name="choose_wallet">Выберите кошелек</string>
+    <string name="template_transactions">Шаблоны</string>
+    <string name="report">Отчет</string>
+    <string name="from">Дата от</string>
+    <string name="to">Дата до</string>
+    <string name="show_report">Показать отчет</string>
 
     <string-array name="wallet_types">
         <item>Наличные деньги</item>

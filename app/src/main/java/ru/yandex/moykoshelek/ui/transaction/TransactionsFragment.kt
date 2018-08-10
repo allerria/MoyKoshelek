@@ -53,20 +53,20 @@ class TransactionsFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this, factory).get(TransactionViewModel::class.java)
         walletId = arguments!!.getInt(TAG)
-        add_transaction_fab.setOnClickListener { router.navigateTo(Screens.TRANSACTION_SCREEN, arrayListOf(ActionTypes.ADD_TRANSACTION, walletId, walletCurrency)) }
+        add_transaction_fab.setOnClickListener { navigateToAddTransactionOrWallet() }
         initRecyclerView()
         initObserve()
     }
 
     fun initObserve() = launch {
         viewModel.wallets.await().observe(this@TransactionsFragment, Observer { wallets ->
-            if (wallets != null) {
+            if (wallets != null && wallets.isNotEmpty()) {
                 initWalletSpinner(wallets)
             }
         })
 
         viewModel.transactions.await().observe(this@TransactionsFragment, Observer { transactions ->
-            if (transactions != null) {
+            if (transactions != null && transactions.isNotEmpty()) {
                 transactionsAdapter.setTransactions(transactions)
                 transactionsAdapter.setData(walletId)
             }
@@ -95,7 +95,7 @@ class TransactionsFragment : BaseFragment() {
         router.navigateTo(Screens.TRANSACTION_SCREEN, arrayListOf(actionType, walletId, walletCurrency, transactionId))
     }
 
-    private fun initWalletSpinner(wallets: List<Wallet>) {
+    private fun initWalletSpinner(wallets: List<Wallet>) = launch(UI) {
         val walletStringArray = mutableListOf<String>()
 
         walletStringArray.addAll(listOf(getString(R.string.choose_wallet)).plus(wallets.map { "${it.name}-${it.balance.formatMoney(it.currency)}" }))
@@ -112,16 +112,27 @@ class TransactionsFragment : BaseFragment() {
         wallet_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
 
-            override fun onItemSelected(adapterView: AdapterView<*>, itemView: View, position: Int, p3: Long) {
-                if (position > 0) {
+            override fun onItemSelected(adapterView: AdapterView<*>?, itemView: View?, position: Int, p3: Long) {
+                if (position > 0 && itemView != null) {
                     launch(UI) {
-                        walletId = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().id
-                        walletCurrency = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await().currency
-                        transactionsAdapter.setData(walletId)
+                        val tmpWallet = viewModel.getWalletByTag(wallet_spinner.selectedItem.toString()).await()
+                        if (tmpWallet != null) {
+                            walletId = tmpWallet.id
+                            walletCurrency = tmpWallet.currency
+                            transactionsAdapter.setData(walletId)
+                        }
                     }
                 }
             }
 
+        }
+    }
+
+    private fun navigateToAddTransactionOrWallet() = launch(UI) {
+        if (viewModel.wallets.await().value!!.isNotEmpty()) {
+            router.navigateTo(Screens.TRANSACTION_SCREEN, arrayListOf(ActionTypes.ADD_TRANSACTION, walletId, walletCurrency))
+        } else {
+            router.navigateTo(Screens.WALLET_SCREEN)
         }
     }
 

@@ -6,7 +6,12 @@ import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.extensions.getCurrentDateTime
 import java.util.*
 
-@Entity(tableName = "template_transactions", indices = [Index(value = ["name"], unique = true)])
+@Entity(tableName = "template_transactions",
+        foreignKeys = arrayOf(ForeignKey(entity = Wallet::class,
+                parentColumns = arrayOf("id"),
+                childColumns = arrayOf("wallet_id"),
+                onDelete = ForeignKey.CASCADE)),
+        indices = [Index(value = ["name"], unique = true), Index(value = ["wallet_id"])])
 data class TemplateTransaction(@PrimaryKey(autoGenerate = true) var id: Int,
                                @ColumnInfo(name = "name") var name: String,
                                @ColumnInfo(name = "period") var period: Int?,

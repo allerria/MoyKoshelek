@@ -20,7 +20,7 @@ class MenuFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         menu_home.setOnClickListener { router.backTo(Screens.BALANCE_SCREEN) }
-        menu_statistics.setOnClickListener { router.backTo(Screens.REPORT_SCREEN) }
+        menu_statistics.setOnClickListener { router.navigateTo(Screens.REPORT_SCREEN) }
         menu_settings.setOnClickListener { router.navigateTo(Screens.SETTINGS_SCREEN) }
         menu_about.setOnClickListener { router.navigateTo(Screens.ABOUT_SCREEN) }
         menu_layout.setOnClickListener { router.exit() }
