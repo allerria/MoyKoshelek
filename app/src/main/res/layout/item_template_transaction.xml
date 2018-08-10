@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_template_transaction"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground">
+
+    <TextView
+        android:id="@+id/t_category_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="@android:string/untitled" />
+
+    <TextView
+        android:id="@+id/t_name_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/t_category_text_view"
+        android:layout_toRightOf="@id/t_category_text_view"
+        android:layout_marginStart="@dimen/dimen_16"
+        android:text="@android:string/untitled"/>
+
+    <TextView
+        android:id="@+id/t_period_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/t_category_text_view"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="@dimen/dimen_8"
+        android:text="@android:string/untitled"/>
+
+    <TextView
+        android:id="@+id/t_cost_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:text="@android:string/untitled" />
+
+    <TextView
+        android:id="@+id/t_date_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/t_cost_text_view"
+        android:layout_marginTop="@dimen/dimen_8"
+        android:text="@android:string/untitled" />
+</RelativeLayout>

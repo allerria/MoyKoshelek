@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/add_transaction_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".ui.main.MainActivity"
+        tools:showIn="@layout/app_bar_main">
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/wallet_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_36"
+            android:layout_marginEnd="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_48"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:entries="@array/currency_types"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/template_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_36"
+            android:layout_marginEnd="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_48"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:entries="@array/currency_types"
+            app:layout_constraintTop_toBottomOf="@id/wallet_spinner" />
+
+        <RadioGroup
+            android:id="@+id/type_radio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_48"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/template_spinner">
+
+            <RadioButton
+                android:id="@+id/out_radio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/dimen_8"
+                android:layout_weight="1"
+                android:background="@drawable/background_radio_btn"
+                android:button="@null"
+                android:checked="true"
+                android:text="Расход"
+                android:textAlignment="center" />
+
+            <RadioButton
+                android:id="@+id/in_radio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/background_radio_btn"
+                android:button="@null"
+                android:text="Доход"
+                android:textAlignment="center" />
+        </RadioGroup>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/icon_category"
+            android:layout_width="@dimen/dimen_16"
+            android:layout_height="@dimen/dimen_16"
+            android:layout_marginLeft="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_16"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/ic_square"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/type_radio" />
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/transaction_category"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_36"
+            android:layout_marginEnd="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_48"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:entries="@array/transaction_expense_categories"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/type_radio" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/icon_amount"
+            android:layout_width="@dimen/dimen_16"
+            android:layout_height="@dimen/dimen_16"
+            android:layout_marginLeft="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_16"
+            android:layout_marginTop="40dp"
+            android:src="@drawable/ic_wallet"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon_category" />
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/transaction_amount"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_48"
+            android:layout_marginEnd="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_48"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:hint="@string/amount"
+            android:inputType="numberDecimal"
+            android:maxLength="14"
+            android:textColorHint="@color/colorPrimary"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/transaction_category" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/period_check_box"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_48"
+            android:layout_marginStart="@dimen/dimen_8"
+            android:layout_marginTop="@dimen/dimen_16"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/transaction_amount" />
+
+        <TextView
+            android:id="@+id/period_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_48"
+            android:layout_marginEnd="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_16"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:gravity="center_vertical"
+            android:text="@string/periodic_transaction"
+            app:layout_constraintStart_toEndOf="@id/period_check_box"
+            app:layout_constraintTop_toBottomOf="@id/transaction_amount" />
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/period_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_48"
+            android:layout_marginEnd="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_48"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:hint="@string/period"
+            android:inputType="numberDecimal"
+            android:maxLength="3"
+            android:singleLine="true"
+            android:textColorHint="@color/colorPrimary"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/period_check_box" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/template_check_box"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_48"
+            android:layout_marginStart="@dimen/dimen_8"
+            android:layout_marginTop="@dimen/dimen_16"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/period_edit_text" />
+
+        <TextView
+            android:id="@+id/template_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_48"
+            android:layout_marginEnd="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_16"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:gravity="center_vertical"
+            android:text="@string/create_template_question"
+            app:layout_constraintStart_toEndOf="@id/template_check_box"
+            app:layout_constraintTop_toBottomOf="@id/period_edit_text" />
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/template_name_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_48"
+            android:layout_marginEnd="@dimen/dimen_16"
+            android:layout_marginStart="@dimen/dimen_48"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:hint="@string/template_name"
+            android:inputType="text"
+            android:singleLine="true"
+            android:textColorHint="@color/colorPrimary"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/template_check_box" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/delete_button"
+            android:layout_width="128dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="@dimen/dimen_8"
+            android:background="@drawable/delete_btn_background"
+            android:text="@string/delete"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toStartOf="@id/submit_button"
+            app:layout_constraintTop_toTopOf="@id/submit_button" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/submit_button"
+            android:layout_width="128dp"
+            android:layout_height="36dp"
+            android:layout_marginBottom="@dimen/dimen_16"
+            android:layout_marginTop="@dimen/dimen_16"
+            android:background="@drawable/save_btn_background"
+            android:text="@string/add"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="@id/template_name_edit_text"
+            app:layout_constraintTop_toBottomOf="@id/template_name_edit_text" />
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

@@ -2,8 +2,12 @@ package ru.yandex.moykoshelek.extensions
 
 import android.app.Activity
 import android.content.Context
+import android.support.v4.app.Fragment
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
+import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,4 +35,14 @@ fun Activity.hideKeyboard() {
     }
 }
 
-fun currencySign(currencyType: Int): String = if (CurrencyTypes.USD == currencyType) "$ " else "\u20BD "
+fun Double.formatMoney(currencyType: Int) = String.format("%.2f", this) + if (CurrencyTypes.USD == currencyType) "$ " else "\u20BD "
+
+fun transactionTypeSign(transactionType: Int) = if (transactionType == TransactionTypes.IN) "+" else "-"
+
+fun Fragment.showSuccessToast() {
+    Toast.makeText(context, R.string.success, Toast.LENGTH_SHORT).show()
+}
+
+fun Fragment.showToast(msg: String) {
+    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+}

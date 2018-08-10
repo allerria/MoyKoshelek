@@ -59,6 +59,29 @@
     <string name="account_number">Номер счета</string>
     <string name="fill_field">Пожалуйста заполните поле</string>
     <string name="place_example">Moscow, Russia</string>
+    <string name="success">Успешно!</string>
+    <string name="create_template_question">Создать шаблон?</string>
+    <string name="template_name">Имя шаблона</string>
+    <string name="choose_template">Выбрать шаблон</string>
+    <string name="period_must_be_int">Период должен быть целым числом</string>
+    <string name="edit">Редактировать</string>
+    <string name="wallets">Кошельки</string>
+    <string name="last_transaction">Последняя транзакция</string>
+    <string name="period_transactions">Периодические транзакции</string>
+    <string name="show_all_transactions">Показать все транзакции</string>
+    <string name="last_period_transaction">Последняя периодическая транзакция</string>
+    <string name="show_all">Показать все</string>
+    <string name="amount">Сумма</string>
+    <string name="choose_category">Выберите категорию</string>
+    <string name="delete">Удалить</string>
+    <string name="are_you_sure_to_delete">Вы точно хотите удалить?</string>
+    <string name="wallet_balance">Баланс кошелька</string>
+    <string name="choose_wallet">Выберите кошелек</string>
+    <string name="template_transactions">Шаблоны</string>
+    <string name="report">Отчет</string>
+    <string name="from">Дата от</string>
+    <string name="to">Дата до</string>
+    <string name="show_report">Показать отчет</string>
 
     <string-array name="wallet_types">
         <item>Наличные деньги</item>
@@ -71,6 +94,7 @@
         <item>RUB</item>
     </string-array>
     <string-array name="transaction_expense_categories">
+        <item>@string/choose_category</item>
         <item>@string/auto</item>
         <item>@string/clothing</item>
         <item>@string/house</item>
@@ -80,6 +104,7 @@
         <item>@string/other</item>
     </string-array>
     <string-array name="transaction_income_categories">
+        <item>@string/choose_category</item>
         <item>@string/salary</item>
         <item>@string/gift</item>
         <item>@string/other</item>

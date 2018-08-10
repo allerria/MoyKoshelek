@@ -23,6 +23,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
+            testCoverageEnabled = true
             minifyEnabled false
             shrinkResources false
         }
@@ -40,6 +41,7 @@ ext {
     coroutine = '0.24.0'
     mockito = '2.20.1'
     espresso = '3.0.2'
+    roboelectric = '3.8'
 }
 
 kotlin {
@@ -94,5 +96,6 @@ dependencies {
     testImplementation "android.arch.core:core-testing:$archTestings"
     testImplementation "org.mockito:mockito-core:$mockito"
     testImplementation "org.mockito:mockito-inline:$mockito"
+    testImplementation "org.robolectric:robolectric:$roboelectric"
 
 }

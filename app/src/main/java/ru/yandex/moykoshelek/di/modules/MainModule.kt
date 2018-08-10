@@ -5,9 +5,13 @@ import dagger.android.ContributesAndroidInjector
 import ru.yandex.moykoshelek.ui.about.AboutFragment
 import ru.yandex.moykoshelek.ui.balance.BalanceFragment
 import ru.yandex.moykoshelek.ui.menu.MenuFragment
+import ru.yandex.moykoshelek.ui.report.ReportFragment
 import ru.yandex.moykoshelek.ui.settings.SettingsFragment
-import ru.yandex.moykoshelek.ui.transaction.AddTransactionFragment
-import ru.yandex.moykoshelek.ui.wallet.AddWalletFragment
+import ru.yandex.moykoshelek.ui.transaction.PeriodTemplateTransactionsFragment
+import ru.yandex.moykoshelek.ui.transaction.TransactionFragment
+import ru.yandex.moykoshelek.ui.transaction.TransactionsFragment
+import ru.yandex.moykoshelek.ui.wallet.WalletFragment
+import ru.yandex.moykoshelek.ui.wallet.WalletsFragment
 
 @Module
 abstract class MainModule {
@@ -19,15 +23,27 @@ abstract class MainModule {
     abstract fun bindMenuFragment(): MenuFragment
 
     @ContributesAndroidInjector
-    abstract fun bindAddWalletFragment(): AddWalletFragment
+    abstract fun bindAddWalletFragment(): WalletFragment
 
     @ContributesAndroidInjector
-    abstract fun bindAddTransactionFragment(): AddTransactionFragment
+    abstract fun bindAddTransactionFragment(): TransactionFragment
 
     @ContributesAndroidInjector
     abstract fun bindAboutFragment(): AboutFragment
 
     @ContributesAndroidInjector
     abstract fun bindSettingsFragment(): SettingsFragment
+
+    @ContributesAndroidInjector
+    abstract fun bindWalletsFragment(): WalletsFragment
+
+    @ContributesAndroidInjector
+    abstract fun bindTransactionsFragment(): TransactionsFragment
+
+    @ContributesAndroidInjector
+    abstract fun bindPeriodTemplateTransactionsFragment(): PeriodTemplateTransactionsFragment
+
+    @ContributesAndroidInjector
+    abstract fun bindReportFragment(): ReportFragment
 
 }

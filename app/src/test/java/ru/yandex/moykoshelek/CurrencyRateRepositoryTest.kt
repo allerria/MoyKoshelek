@@ -2,6 +2,7 @@ package ru.yandex.moykoshelek
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.arch.lifecycle.MutableLiveData
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,21 +36,25 @@ class CurrencyRateRepositoryTest {
 
     @Test
     fun getCurrencyRate() {
-        val expectedCurrencyRate = MutableLiveData<Float>()
-        expectedCurrencyRate.value = currencyRateStub
-        `when`(currencyPref.getCurrentConvert()).thenReturn(expectedCurrencyRate)
+        runBlocking {
+            val expectedCurrencyRate = MutableLiveData<Float>()
+            expectedCurrencyRate.value = currencyRateStub
+            `when`(currencyPref.getCurrentConvert()).thenReturn(expectedCurrencyRate)
 
-        assertEquals(currencyRateRepository.getCurrencyRate(), expectedCurrencyRate)
+            assertEquals(expectedCurrencyRate, currencyRateRepository.getCurrencyRate())
 
-        verify(currencyPref).getCurrentConvert()
+            verify(currencyPref).getCurrentConvert()
+        }
     }
 
     @Test
     fun updateCurrencyRate() {
-        `when`(currencyRateRemote.getCurrencyRate()).thenReturn(currencyRateStub)
+        runBlocking {
+            `when`(currencyRateRemote.getCurrencyRate()).thenReturn(currencyRateStub)
 
-        assertNotNull(currencyRateRepository.updateCurrencyRate())
+            assertNotNull(currencyRateRepository.updateCurrencyRate())
 
-        verify(currencyPref).setCurrentConvert(currencyRateStub)
+            verify(currencyPref).setCurrentConvert(currencyRateStub)
+        }
     }
 }

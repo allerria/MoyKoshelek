@@ -1,9 +1,10 @@
 package ru.yandex.moykoshelek.ui.balance
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Transformations
-import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.*
 import android.widget.Toast
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Transaction
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
@@ -12,21 +13,19 @@ import ru.yandex.moykoshelek.interactors.WalletInteractor
 import timber.log.Timber
 import javax.inject.Inject
 
-class BalanceViewModel @Inject constructor(private val walletInteractor: WalletInteractor): ViewModel(){
+class BalanceViewModel @Inject constructor(private val walletInteractor: WalletInteractor) : ViewModel() {
 
-    val wallets: LiveData<List<Wallet>> = walletInteractor.getWallets()
+    val wallets = async { walletInteractor.getWallets() }
+    val transactions = async { walletInteractor.getTransactions() }
+    val periodTransactions = async { walletInteractor.getPeriodTransactions() }
+    val templateTransactions = async { walletInteractor.getTemplateTransactions() }
 
-    fun getTransactions(walletId: Int) = walletInteractor.getTransactions(walletId)
-
-    fun getWalletId(position: Int): Int {
-        return wallets.value!![position].id
-    }
-
-    fun updateCurrencyRate() {
+    fun updateCurrencyRate() = launch {
         walletInteractor.updateCurrencyRate()
     }
 
-    fun checkPeriodTransactions() {
+    fun checkPeriodTransactions() = launch {
         walletInteractor.executePeriodTransactions()
     }
+
 }

@@ -13,14 +13,22 @@ interface WalletDao {
     @Query("select * from wallets")
     fun getAll(): LiveData<List<Wallet>>
 
+    @Query("select * from wallets where id = :walletId")
+    fun getById(walletId: Int): LiveData<Wallet>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(wallet: Wallet)
 
-    @Update
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(wallets: List<Wallet>)
+
+    @Update()
     fun update(wallet: Wallet)
 
     @Query("update wallets set balance = balance + :transactionCost where id = :walletId")
     fun executeTransaction(walletId: Int, transactionCost: Double)
+
+    @Delete()
+    fun delete(wallet: Wallet)
 }
 
-//suspend fun WalletDao.getTransactions(): LiveData<List<Wallet>> = withContext(DefaultDispatcher) { getAll() }
