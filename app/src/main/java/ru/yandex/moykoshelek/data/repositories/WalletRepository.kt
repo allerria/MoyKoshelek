@@ -8,6 +8,8 @@ class WalletRepository (private val walletDao: WalletDao) {
 
     fun getWallets(): LiveData<List<Wallet>> = walletDao.getAll()
 
+    fun getWalletById(walletId: Int): LiveData<Wallet> = walletDao.getById(walletId)
+
     fun addWallet(wallet: Wallet) {
         walletDao.insert(wallet)
     }

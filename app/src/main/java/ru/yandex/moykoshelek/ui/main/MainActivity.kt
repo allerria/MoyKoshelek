@@ -4,12 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentTransaction
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.app_bar_main.*
-import org.jetbrains.anko.selector
 import ru.terrakok.cicerone.Router
 import ru.terrakok.cicerone.android.SupportAppNavigator
+import ru.terrakok.cicerone.commands.Command
+import ru.terrakok.cicerone.commands.Replace
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.ui.transaction.TransactionFragment
 import ru.yandex.moykoshelek.ui.wallet.WalletFragment
@@ -21,6 +23,8 @@ import ru.yandex.moykoshelek.ui.about.AboutFragment
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.report.ReportFragment
 import ru.yandex.moykoshelek.ui.settings.SettingsFragment
+import ru.yandex.moykoshelek.ui.transaction.TransactionsFragment
+import ru.yandex.moykoshelek.ui.wallet.WalletsFragment
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -49,7 +53,6 @@ class MainActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_add -> showSelectAddDialog()
             android.R.id.home -> {
                 if ((supportFragmentManager.fragments.first() as BaseFragment).TAG != Screens.BALANCE_SCREEN) {
                     router.exit()
@@ -68,23 +71,21 @@ class MainActivity : BaseActivity() {
         override fun createFragment(screenKey: String?, data: Any?): Fragment? = when (screenKey) {
             Screens.BALANCE_SCREEN -> BalanceFragment()
             Screens.MENU_SCREEN -> MenuFragment()
-            Screens.TRANSACTION_SCREEN -> TransactionFragment.getInstance(data as Int?)
-            Screens.WALLET_SCREEN -> WalletFragment()
+            Screens.TRANSACTION_SCREEN -> TransactionFragment.getInstance(data as ArrayList<Int>)
+            Screens.TRANSACTIONS_SCREEN -> TransactionsFragment.getInstance(data as Int)
+            Screens.WALLET_SCREEN -> WalletFragment.getInstance(data as Int?)
+            Screens.WALLETS_SCREEN -> WalletsFragment()
             Screens.ABOUT_SCREEN -> AboutFragment()
             Screens.SETTINGS_SCREEN -> SettingsFragment()
             Screens.REPORT_SCREEN -> ReportFragment()
             else -> null
         }
 
-    }
-
-    private fun showSelectAddDialog() {
-        val array = arrayOf(getString(R.string.wallet), getString(R.string.income_expense))
-        selector(getString(R.string.add), array.toList()) { _, i ->
-            when (i) {
-                0 -> router.navigateTo(Screens.WALLET_SCREEN)
-                1 -> router.navigateTo(Screens.TRANSACTION_SCREEN, null)
-            }
+        override fun setupFragmentTransactionAnimation(command: Command,
+                                                       currentFragment: Fragment?,
+                                                       nextFragment: Fragment?,
+                                                       fragmentTransaction: FragmentTransaction) {
+            fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
         }
     }
 

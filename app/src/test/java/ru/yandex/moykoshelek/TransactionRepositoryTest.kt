@@ -30,13 +30,13 @@ class TransactionRepositoryTest {
     private lateinit var periodTransactionDao: PeriodTransactionDao
     private lateinit var templateTransactionDao: TemplateTransactionDao
     private lateinit var transactionsRepository: TransactionsRepository
-    private val transactionStub = Transaction(1, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
+    private val transactionStub = Transaction(1, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, TransactionTypes.IN, 1, "auto")
     private val transactionsListStub = listOf(transactionStub, transactionStub)
-    private val periodTransactionStub = PeriodTransaction(1, getCurrentDateTimeBeforeDays(14), 7, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
-    private val periodTransactionStub1 = PeriodTransaction(2, getCurrentDateTimeBeforeDays(30), 10, 5.0, CurrencyTypes.RUB, "asd", TransactionTypes.OUT, 1, "agagaga")
+    private val periodTransactionStub = PeriodTransaction(1, getCurrentDateTimeBeforeDays(14), 7, 1.0, CurrencyTypes.RUB, TransactionTypes.IN, 1, "auto")
+    private val periodTransactionStub1 = PeriodTransaction(2, getCurrentDateTimeBeforeDays(30), 10, 5.0, CurrencyTypes.RUB, TransactionTypes.OUT, 1, "agagaga")
     private val periodTransactionsListStub = listOf(periodTransactionStub, periodTransactionStub1)
-    private val templateTransactionStub = TemplateTransaction(1, "template", null, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
-    private val templateTransactionStub1 = TemplateTransaction(2, "template", 7, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
+    private val templateTransactionStub = TemplateTransaction(1, "template", null, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, TransactionTypes.IN, 1, "auto")
+    private val templateTransactionStub1 = TemplateTransaction(2, "template", 7, getCurrentDateTime(), 1.0, CurrencyTypes.RUB, TransactionTypes.IN, 1, "auto")
     private val templateTransactionsListStub = listOf(templateTransactionStub, templateTransactionStub1)
 
 
@@ -93,18 +93,18 @@ class TransactionRepositoryTest {
     }
 
     @Test
-    fun addOrUpdateTransaction() {
-        assertNotNull(transactionsRepository.addOrUpdateTransaction(transactionStub))
+    fun addTransaction() {
+        assertNotNull(transactionsRepository.addTransaction(transactionStub))
 
-        verify(transactionDao).insertOrUpdate(transactionStub)
+        verify(transactionDao).insert(transactionStub)
     }
 
     @Test
-    fun addOrUpdateTransactions() {
+    fun addTransactions() {
         runBlocking {
-            assertNotNull(transactionsRepository.addOrUpdateTransactions(transactionsListStub))
+            assertNotNull(transactionsRepository.addTransactions(transactionsListStub))
 
-            verify(transactionDao).insertOrUpdate(transactionsListStub)
+            verify(transactionDao).insert(transactionsListStub)
         }
     }
 
@@ -120,9 +120,11 @@ class TransactionRepositoryTest {
     @Test
     fun getPeriodTransactions() {
         runBlocking {
-            `when`(periodTransactionDao.getAll()).thenReturn(periodTransactionsListStub)
+            val expectedTransactionsList = MutableLiveData<List<PeriodTransaction>>()
+            expectedTransactionsList.value = periodTransactionsListStub
+            `when`(periodTransactionDao.getAll()).thenReturn(expectedTransactionsList)
 
-            assertEquals(periodTransactionsListStub, transactionsRepository.getPeriodTransactions())
+            assertEquals(expectedTransactionsList, transactionsRepository.getPeriodTransactions())
 
             verify(periodTransactionDao).getAll()
         }
@@ -141,7 +143,7 @@ class TransactionRepositoryTest {
     }
 
     @Test
-    fun addPeriodTransaction(){
+    fun addPeriodTransaction() {
         runBlocking {
             assertNotNull(transactionsRepository.addPeriodTransaction(periodTransactionStub))
 

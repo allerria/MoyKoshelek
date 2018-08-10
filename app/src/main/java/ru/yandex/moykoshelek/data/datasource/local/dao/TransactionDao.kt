@@ -19,14 +19,14 @@ interface TransactionDao {
     fun getAllByWalletId(walletId: Int): LiveData<List<Transaction>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrUpdate(transaction: Transaction)
+    fun insert(transaction: Transaction)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrUpdate(transactions: List<Transaction>)
+    fun insert(transactions: List<Transaction>)
 
-    @Update
+    @Update()
     fun update(transaction: Transaction)
 
-    @Delete
+    @Delete()
     fun delete(transaction: Transaction)
 }

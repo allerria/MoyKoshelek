@@ -17,6 +17,8 @@ class BalanceViewModel @Inject constructor(private val walletInteractor: WalletI
 
     val wallets = async { walletInteractor.getWallets() }
     val transactions = async { walletInteractor.getTransactions() }
+    val periodTransactions = async { walletInteractor.getPeriodTransactions() }
+    val templateTransactions = async { walletInteractor.getTemplateTransactions() }
 
     fun updateCurrencyRate() = launch {
         walletInteractor.updateCurrencyRate()

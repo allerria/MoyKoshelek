@@ -7,14 +7,13 @@ import org.junit.Test
 import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDao
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
-import ru.yandex.moykoshelek.data.entities.WalletTypes
 import org.junit.Assert.assertNotNull
-import ru.yandex.moykoshelek.util.TestUtils.getValue
+import ru.yandex.moykoshelek.util.TestUtils.getValueFromLiveData
 
-class WalletDaoTest: DbTest() {
+class WalletDaoTest : DbTest() {
     private lateinit var walletDao: WalletDao
-    private val walletStub = Wallet(1, WalletTypes.BANK_ACCOUNT, "testwallet", 1000.0, CurrencyTypes.RUB, "2", "22/12")
-    private val walletStub1 = Wallet(2, WalletTypes.BANK_ACCOUNT, "testwallet", 1000.0, CurrencyTypes.RUB, "2", "22/12")
+    private val walletStub = Wallet(1, "testwallet", 1000.0, CurrencyTypes.RUB)
+    private val walletStub1 = Wallet(2, "testwallet", 1000.0, CurrencyTypes.RUB)
     private val walletStubList = listOf(walletStub, walletStub1)
 
     @Before
@@ -27,7 +26,7 @@ class WalletDaoTest: DbTest() {
         runBlocking {
             assertNotNull(walletDao.insert(walletStub))
 
-            assertEquals(walletStub, getValue(walletDao.getById(walletStub.id)))
+            assertEquals(walletStub, getValueFromLiveData(walletDao.getById(walletStub.id)))
         }
     }
 
@@ -35,7 +34,7 @@ class WalletDaoTest: DbTest() {
     fun insertManyAndGetAll() {
         runBlocking {
             assertNotNull(walletDao.insert(walletStubList))
-            assertEquals(walletStubList, getValue(walletDao.getAll()))
+            assertEquals(walletStubList, getValueFromLiveData(walletDao.getAll()))
         }
     }
 
@@ -48,7 +47,7 @@ class WalletDaoTest: DbTest() {
 
             assertNotNull(walletDao.update(expectedWallet))
 
-            assertEquals(expectedWallet, getValue(walletDao.getById(expectedWallet.id)))
+            assertEquals(expectedWallet, getValueFromLiveData(walletDao.getById(expectedWallet.id)))
         }
     }
 
@@ -62,7 +61,7 @@ class WalletDaoTest: DbTest() {
 
             assertNotNull(walletDao.executeTransaction(expectedTransaction.id, transactionCost))
 
-            assertEquals(expectedTransaction, getValue(walletDao.getById(expectedTransaction.id)))
+            assertEquals(expectedTransaction, getValueFromLiveData(walletDao.getById(expectedTransaction.id)))
         }
     }
 
@@ -73,7 +72,7 @@ class WalletDaoTest: DbTest() {
 
             assertNotNull(walletDao.delete(walletStub))
 
-            assertEquals(listOf<List<Wallet>>(), getValue(walletDao.getAll()))
+            assertEquals(listOf<List<Wallet>>(), getValueFromLiveData(walletDao.getAll()))
         }
     }
 }

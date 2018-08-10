@@ -7,7 +7,9 @@ import ru.yandex.moykoshelek.ui.balance.BalanceFragment
 import ru.yandex.moykoshelek.ui.menu.MenuFragment
 import ru.yandex.moykoshelek.ui.settings.SettingsFragment
 import ru.yandex.moykoshelek.ui.transaction.TransactionFragment
+import ru.yandex.moykoshelek.ui.transaction.TransactionsFragment
 import ru.yandex.moykoshelek.ui.wallet.WalletFragment
+import ru.yandex.moykoshelek.ui.wallet.WalletsFragment
 
 @Module
 abstract class MainModule {
@@ -29,5 +31,11 @@ abstract class MainModule {
 
     @ContributesAndroidInjector
     abstract fun bindSettingsFragment(): SettingsFragment
+
+    @ContributesAndroidInjector
+    abstract fun bindWalletsFragment(): WalletsFragment
+
+    @ContributesAndroidInjector
+    abstract fun bindTransactionsFragment(): TransactionsFragment
 
 }

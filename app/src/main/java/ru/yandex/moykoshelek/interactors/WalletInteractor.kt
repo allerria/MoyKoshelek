@@ -10,6 +10,7 @@ import ru.yandex.moykoshelek.data.repositories.CurrencyRateRepository
 import ru.yandex.moykoshelek.data.repositories.TransactionsRepository
 import ru.yandex.moykoshelek.data.repositories.WalletRepository
 import ru.yandex.moykoshelek.extensions.getCurrentDateTime
+import ru.yandex.moykoshelek.util.TestUtils.getValueFromLiveData
 import java.util.*
 import javax.inject.Inject
 
@@ -20,6 +21,8 @@ class WalletInteractor @Inject constructor(
 ) {
 
     fun getWallets(): LiveData<List<Wallet>> = walletRepository.getWallets()
+
+    fun getWallet(walletId: Int): LiveData<Wallet> = walletRepository.getWalletById(walletId)
 
     fun addWallet(wallet: Wallet) {
         walletRepository.addWallet(wallet)
@@ -43,8 +46,8 @@ class WalletInteractor @Inject constructor(
 
     fun getTransactionById(transactionId: Int): LiveData<Transaction> = transactionsRepository.getTransactionById(transactionId)
 
-    fun addOrUpdateTransaction(transaction: Transaction) {
-        transactionsRepository.addOrUpdateTransaction(transaction)
+    fun addTransaction(transaction: Transaction) {
+        transactionsRepository.addTransaction(transaction)
     }
 
     fun updateTransaction(transaction: Transaction) {
@@ -56,7 +59,7 @@ class WalletInteractor @Inject constructor(
     }
 
     fun executeTransaction(transaction: Transaction) {
-        transactionsRepository.addOrUpdateTransaction(transaction)
+        transactionsRepository.addTransaction(transaction)
         var transactionCost = transaction.cost
         if (transaction.type == TransactionTypes.OUT) {
             transactionCost *= -1
@@ -66,7 +69,7 @@ class WalletInteractor @Inject constructor(
 
     fun executeTransactions(transactions: List<Transaction>) {
         if (transactions.isNotEmpty()) {
-            transactionsRepository.addOrUpdateTransactions(transactions)
+            transactionsRepository.addTransactions(transactions)
             walletRepository.updateWalletAfterTransaction(transactions.first().walletId, transactionsSum(transactions))
         }
     }
@@ -80,7 +83,7 @@ class WalletInteractor @Inject constructor(
             calendarLast.time = it.time
             calendarLast.add(Calendar.DAY_OF_MONTH, it.period)
             while (calendarLast.before(calendarNow)) {
-                val transaction = Transaction(0, calendarLast.time, it.cost, it.currency, it.placeholder, it.type, it.walletId, it.category)
+                val transaction = Transaction(0, calendarLast.time, it.cost, it.currency, it.type, it.walletId, it.category)
                 toExecuteTransactions.add(transaction)
                 calendarLast.add(Calendar.DAY_OF_MONTH, it.period)
             }
@@ -90,12 +93,18 @@ class WalletInteractor @Inject constructor(
 
     fun getPeriodTransaction(periodTransactionId: Int): PeriodTransaction = transactionsRepository.getPeriodTransaction(periodTransactionId)
 
+    fun getPeriodTransactions(): LiveData<List<PeriodTransaction>> = transactionsRepository.getPeriodTransactions()
+
     fun addPeriodTransaction(periodTransaction: PeriodTransaction) = transactionsRepository.addPeriodTransaction(periodTransaction)
 
     fun executePeriodTransactions() {
         val periodTransactions = transactionsRepository.getPeriodTransactions()
-        val deferredTransactions = getDeferredTransactions(periodTransactions)
+        val deferredTransactions = getDeferredTransactions(getValueFromLiveData(periodTransactions))
         executeTransactions(deferredTransactions)
+    }
+
+    fun updatePeriodTransaction(periodTransaction: PeriodTransaction) {
+        transactionsRepository.deletePeriodTransaction(periodTransaction)
     }
 
     fun deletePeriodTransaction(periodTransaction: PeriodTransaction) {
@@ -106,6 +115,10 @@ class WalletInteractor @Inject constructor(
 
     fun addTemplateTransaction(templateTransaction: TemplateTransaction) {
         transactionsRepository.addTemplateTransaction(templateTransaction)
+    }
+
+    fun updateTemplateTransaction(templateTransaction: TemplateTransaction) {
+        transactionsRepository.updateTemplateTransaction(templateTransaction)
     }
 
     fun deleteTemplateTransaction(templateTransaction: TemplateTransaction) {

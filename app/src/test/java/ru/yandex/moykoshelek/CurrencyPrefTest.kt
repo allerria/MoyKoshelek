@@ -8,7 +8,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import ru.yandex.moykoshelek.data.datasource.local.CurrencyPref
-import ru.yandex.moykoshelek.util.TestUtils.getValue
+import ru.yandex.moykoshelek.util.TestUtils.getValueFromLiveData
 
 @Config(manifest= Config.NONE)
 @RunWith(RobolectricTestRunner::class)
@@ -21,6 +21,6 @@ class CurrencyPrefTest {
 
         assertNotNull(currencyPref.setCurrentConvert(expectedCurrencyRate))
 
-        assertEquals(expectedCurrencyRate, getValue(currencyPref.getCurrentConvert()))
+        assertEquals(expectedCurrencyRate, getValueFromLiveData(currencyPref.getCurrentConvert()))
     }
 }

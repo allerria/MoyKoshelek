@@ -22,13 +22,13 @@ interface WalletDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(wallets: List<Wallet>)
 
-    @Update
+    @Update()
     fun update(wallet: Wallet)
 
     @Query("update wallets set balance = balance + :transactionCost where id = :walletId")
     fun executeTransaction(walletId: Int, transactionCost: Double)
 
-    @Delete
+    @Delete()
     fun delete(wallet: Wallet)
 }
 

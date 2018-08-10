@@ -14,7 +14,6 @@ import org.mockito.Mockito.*
 import ru.yandex.moykoshelek.data.datasource.local.dao.WalletDao
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
-import ru.yandex.moykoshelek.data.entities.WalletTypes
 import ru.yandex.moykoshelek.data.repositories.WalletRepository
 
 @RunWith(JUnit4::class)
@@ -22,7 +21,7 @@ class WalletRepositoryTest {
 
     private lateinit var walletDao: WalletDao
     private lateinit var walletRepository: WalletRepository
-    val walletStub = Wallet(1, WalletTypes.BANK_ACCOUNT, "testwallet", 1000.0, CurrencyTypes.RUB, "2", "22/12")
+    val walletStub = Wallet(1, "testwallet", 1000.0, CurrencyTypes.RUB)
     val walletListStub = listOf(walletStub, walletStub)
 
     @Rule

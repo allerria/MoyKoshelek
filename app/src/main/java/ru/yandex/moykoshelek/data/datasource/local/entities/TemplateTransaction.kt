@@ -13,10 +13,9 @@ data class TemplateTransaction(@PrimaryKey(autoGenerate = true) var id: Int,
                                @ColumnInfo(name = "created_at") var time: Date,
                                @ColumnInfo(name = "cost") var cost: Double,
                                @ColumnInfo(name = "currency") var currency: Int,
-                               @ColumnInfo(name = "placeholder") var placeholder: String,
                                @ColumnInfo(name = "type") var type: Int,
                                @ColumnInfo(name = "wallet_id") var walletId: Int,
                                @ColumnInfo(name = "category") var category: String
 ) {
-    constructor() : this(0, "template", null, getCurrentDateTime(), 0.0, CurrencyTypes.RUB, "", TransactionTypes.IN, 0, "")
+    constructor() : this(0, "template", null, getCurrentDateTime(), 0.0, CurrencyTypes.RUB, TransactionTypes.IN, 0, "")
 }

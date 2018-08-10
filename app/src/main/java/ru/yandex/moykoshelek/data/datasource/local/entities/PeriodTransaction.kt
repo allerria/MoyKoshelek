@@ -12,10 +12,9 @@ data class PeriodTransaction(@PrimaryKey(autoGenerate = true) var id: Int,
                              @ColumnInfo(name = "period_days") var period: Int,
                              @ColumnInfo(name = "cost") var cost: Double,
                              @ColumnInfo(name = "currency") var currency: Int,
-                             @ColumnInfo(name = "placeholder") var placeholder: String,
                              @ColumnInfo(name = "type") var type: Int,
                              @ColumnInfo(name = "wallet_id") var walletId: Int,
                              @ColumnInfo(name = "category") var category: String
 ) {
-    constructor() : this(0, getCurrentDateTime(), 30, 0.0, CurrencyTypes.RUB, "", TransactionTypes.IN, 0, "")
+    constructor() : this(0, getCurrentDateTime(), 30, 0.0, CurrencyTypes.RUB, TransactionTypes.IN, 0, "")
 }

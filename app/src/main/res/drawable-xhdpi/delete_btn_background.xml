@@ -4,6 +4,6 @@
         android:radius="@dimen/border_radius_dimen"
         />
     <solid
-        android:color="@color/colorAccent"
+        android:color="@color/red"
         />
 </shape>

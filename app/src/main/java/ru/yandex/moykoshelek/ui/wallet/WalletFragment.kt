@@ -1,26 +1,40 @@
 package ru.yandex.moykoshelek.ui.wallet
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
+import android.content.DialogInterface
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.fragment_wallet.*
+import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.forEachChild
 import org.jetbrains.anko.forEachChildWithIndex
 import ru.terrakok.cicerone.Router
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.data.datasource.local.entities.Wallet
-import ru.yandex.moykoshelek.data.entities.WalletTypes
 import ru.yandex.moykoshelek.extensions.showSuccessToast
 import ru.yandex.moykoshelek.ui.common.BaseFragment
 import ru.yandex.moykoshelek.ui.Screens
+import ru.yandex.moykoshelek.ui.transaction.ActionTypes
+import timber.log.Timber
 import javax.inject.Inject
 
 class WalletFragment : BaseFragment() {
 
     override val layoutRes = R.layout.fragment_wallet
     override val TAG = Screens.WALLET_SCREEN
+
+    companion object {
+        fun getInstance(walletId: Int?) = WalletFragment().apply {
+            arguments = Bundle().apply {
+                if (walletId != null)
+                    putInt(TAG, walletId)
+            }
+        }
+    }
 
     @Inject
     lateinit var router: Router
@@ -31,86 +45,79 @@ class WalletFragment : BaseFragment() {
     @Inject
     lateinit var factory: ViewModelProvider.Factory
 
+    private var wallet: Wallet? = null
+    private var walletId = 0
+
+    private var dialogClickListener: DialogInterface.OnClickListener = DialogInterface.OnClickListener { dialog, which ->
+        when (which) {
+            DialogInterface.BUTTON_POSITIVE -> {
+                viewModel.deleteWallet(wallet!!)
+                router.exit()
+            }
+        }
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this, factory).get(WalletViewModel::class.java)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        wallet_type_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-
-            override fun onItemSelected(parent: AdapterView<*>?, v: View?, position: Int, id: Long) {
-                showWalletFields(position)
-                icon_currency.visibility = View.VISIBLE
-                wallet_currency_spinner.visibility = View.VISIBLE
-                submit_button.visibility = View.VISIBLE
-            }
+        if (arguments != null) {
+            walletId = arguments!!.getInt(TAG)
         }
-        submit_button.setOnClickListener { createWallet() }
+        submit_button.setOnClickListener { createOrUpdateWallet() }
+        if (walletId > 0) {
+            initObserve()
+            delete_button.setOnClickListener { createDeleteDialog() }
+            submit_button.text = getString(R.string.edit)
+            wallet_currency_spinner.visibility = View.GONE
+            icon_currency.visibility = View.GONE
+        } else {
+            delete_button.visibility = View.GONE
+        }
     }
 
-    private fun createWallet() {
+    private fun createOrUpdateWallet() {
         create_wallet_layout.forEachChild {
             if (it.visibility == View.VISIBLE && it is EditText && it.text.isEmpty()) {
                 it.error = getString(R.string.fill_field)
                 return
             }
         }
-        val wallet = Wallet()
-        with(wallet) {
-            type = wallet_type_spinner.selectedItemPosition
-            currency = wallet_currency_spinner.selectedItemPosition
-            date = wallet_card_date.text.toString()
+        if (wallet == null) {
+            wallet = Wallet()
+        }
+        with(wallet!!) {
             name = wallet_name.text.toString()
-            number = when (wallet.type) {
-                WalletTypes.E_WALLET -> wallet_number.text.toString()
-                WalletTypes.CREDIT_CARD -> wallet_card_number.text.toString()
-                WalletTypes.BANK_ACCOUNT -> wallet_account_number.text.toString()
-                else -> ""
+            balance = wallet_balance.text.toString().toDouble()
+            if (wallet!!.id > 0) {
+                viewModel.updateWallet(this)
+            } else {
+                currency = wallet_currency_spinner.selectedItemPosition
+                viewModel.addWallet(this)
             }
-            viewModel.addWallet(this)
         }
         showSuccessToast()
-        router.backTo(Screens.BALANCE_SCREEN)
+        router.exit()
     }
 
-    private fun showWalletFields(position: Int) {
-        create_wallet_layout.forEachChildWithIndex { i, it ->
-            if (i > 1) {
-                it.visibility = View.GONE
+    private fun initObserve() = launch {
+        viewModel.getWallet(walletId).await().observe(this@WalletFragment, Observer { wallet ->
+            if (wallet != null) {
+                this@WalletFragment.wallet = wallet
+                setWallet()
             }
-        }
+        })
+    }
 
-        icon_name.visibility = View.VISIBLE
-        wallet_name.visibility = View.VISIBLE
+    private fun setWallet() {
+        wallet_name.setText(wallet!!.name)
+        wallet_balance.setText(wallet!!.balance.toString())
+    }
 
-        when (position) {
-            0 -> {
-                wallet_name.hint = getString(R.string.wallet_name)
-                icon_wallet.visibility = View.VISIBLE
-                wallet_number.visibility = View.VISIBLE
-                wallet_number.hint = getString(R.string.wallet_number)
-            }
-            1 -> {
-                wallet_name.hint = getString(R.string.wallet_owner)
-                icon_card.visibility = View.VISIBLE
-                wallet_card_number.visibility = View.VISIBLE
-                wallet_card_number.hint = getString(R.string.card_number)
-                icon_date.visibility = View.VISIBLE
-                wallet_card_date.visibility = View.VISIBLE
-                wallet_card_date.hint = getString(R.string.card_expires)
-            }
-            2 -> {
-                wallet_name.hint = getString(R.string.wallet_name)
-            }
-            3 -> {
-                wallet_name.hint = getString(R.string.account_name)
-                icon_number.visibility = View.VISIBLE
-                wallet_account_number.visibility = View.VISIBLE
-                wallet_account_number.hint = getString(R.string.account_number)
-            }
-        }
+    private fun createDeleteDialog() {
+        AlertDialog.Builder(this@WalletFragment.context!!)
+                .setMessage(getString(R.string.are_you_sure_to_delete))
+                .setPositiveButton(getString(android.R.string.yes), dialogClickListener)
+                .setNegativeButton(getString(android.R.string.no), dialogClickListener)
+                .show()
     }
 }

@@ -10,12 +10,13 @@ import ru.yandex.moykoshelek.data.datasource.local.entities.PeriodTransaction
 import ru.yandex.moykoshelek.data.entities.CurrencyTypes
 import ru.yandex.moykoshelek.data.entities.TransactionTypes
 import ru.yandex.moykoshelek.extensions.getCurrentDateTimeBeforeDays
+import ru.yandex.moykoshelek.util.TestUtils.getValueFromLiveData
 
-class PeriodTranDaoTest: DbTest() {
+class PeriodTranDaoTest : DbTest() {
 
     private lateinit var periodTransactionDao: PeriodTransactionDao
-    private val periodTransactionStub = PeriodTransaction(1, getCurrentDateTimeBeforeDays(14), 7, 1.0, CurrencyTypes.RUB, "asd", TransactionTypes.IN, 1, "auto")
-    private val periodTransactionStub1 = PeriodTransaction(2, getCurrentDateTimeBeforeDays(30), 10, 5.0, CurrencyTypes.RUB, "asd", TransactionTypes.OUT, 1, "agagaga")
+    private val periodTransactionStub = PeriodTransaction(1, getCurrentDateTimeBeforeDays(14), 7, 1.0, CurrencyTypes.RUB, TransactionTypes.IN, 1, "auto")
+    private val periodTransactionStub1 = PeriodTransaction(2, getCurrentDateTimeBeforeDays(30), 10, 5.0, CurrencyTypes.RUB, TransactionTypes.OUT, 1, "agagaga")
     private val periodTransactionsListStub = listOf(periodTransactionStub, periodTransactionStub1)
 
     @Before
@@ -39,7 +40,7 @@ class PeriodTranDaoTest: DbTest() {
                 assertNotNull(periodTransactionDao.insert(it))
             }
 
-            assertEquals(periodTransactionsListStub, periodTransactionDao.getAll())
+            assertEquals(periodTransactionsListStub, getValueFromLiveData(periodTransactionDao.getAll()))
         }
     }
 
@@ -50,7 +51,7 @@ class PeriodTranDaoTest: DbTest() {
 
             assertNotNull(periodTransactionDao.delete(periodTransactionStub))
 
-            assertEquals(listOf<List<PeriodTransaction>>(), periodTransactionDao.getAll())
+            assertEquals(listOf<List<PeriodTransaction>>(), getValueFromLiveData(periodTransactionDao.getAll()))
         }
     }
 
